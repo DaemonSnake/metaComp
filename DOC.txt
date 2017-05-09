@@ -1,0 +1,14 @@
+Pour signaler que l'on souhaite pour acceder à l'arbre on utilisera:
+        named!("id", id)
+
+Un règle sera déclaré comme il suit:
+        rule!("hello", named!("Or", ruleOr!(id, number)))
+
+rule doit contenir une method templeté "parse" comme il suit:
+        auto parse(string txt, size_t index)();
+
+En erreur elle devra renvoyer:
+        tuple(false, index, indexErreur, MSG)
+
+Sinon:
+        tuple(true, new_index, value)
