@@ -5,12 +5,15 @@ import std.meta;
 import std.traits;
 import tools;
 
-alias root = RuleStar!(Rule!(named!("what", RuleOr!(decl, assign, action)), ';'));
-alias decl = Rule!("var", named!("var", RuleId));
-alias assign = Rule!(named!("var", RuleId), '=', named!("value", RuleInt));
-alias action = Rule!(named!("action", RuleId), named!("arg", RuleOr!(RuleId, RuleInt)));
+// root = [id:name '=' rule_body:rule]*
+// rule_body = ['[' rule_element*:content ']' ['+' | '?' | '*']?:postfix]
+// rule_element = [ '|' | [[id | rule_body]:type [':' id:name]? ] ]
+
+// alias root = RuleStar!(named!("name", RuleId), '=' named!("rule", rule_body));
+// alias rule_body = Rule!('[' named!("content", RuleStar!rule_element), ']', named!("postfix", Optional!(RuleOr!('+', '?', '*'))));
+// alias rule_element = RuleOr!('|', Rule!(named!("type", RuleOr!(RuleId, rule_body)), Optional));
 
 void main()
 {
-    enum res = root.parse!("var tmp;  tmp = 25; print tmp;", 0)[2];
+    pragma(msg, ok!B);
 }

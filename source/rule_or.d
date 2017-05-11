@@ -4,6 +4,7 @@ import rule : Rule;
 import type_repr;
 import optional : is_optional, Optional;
 import rule_builtins;
+import tools : is_template;
 
 import std.typecons : tuple;
 import std.meta : anySatisfy, aliasSeqOf, staticMap;
@@ -64,3 +65,18 @@ template or_value(alias Value)
 }
 
 alias RuleOr(rules...) = _RuleOr!(correctArgs!rules);
+
+string apply(alias Func, Ret = string, T)(T value)
+    if (is_template!(_RuleOr, T))
+{
+    import std.traits : TemplateArgsOf;
+
+    enum case_str(size_t I) = "case " ~ I.to!string ~ ": return Func(value.member_" ~ I.to!string ~ ");";
+        
+    switch(value.index)
+    {
+        mixin([staticMap!(case_str, aliasSeqOf!(iota(0, (TemplateArgsOf!T).length)))].joiner("").to!string);
+    default:
+        return Ret.init;
+    }
+}
