@@ -5,11 +5,11 @@ import std.algorithm : min;
 import tools;
 
 alias isId = (c) => isAlphaNum(c) || c == '_';
-enum is_rule_value(T) = is_template!(ruleValue, T);
+enum is_rule_value(T) = isInstanceOf!(ruleValue, T);
 
 struct ruleValue(string repr)
 {
-    static auto parse(string txt, size_t index)()
+    static auto lex(string txt, size_t index, string name = "")()
     {
         enum min_l = min(txt.length, index+repr.length);
         
@@ -34,9 +34,11 @@ struct ruleValue(string repr)
 
 struct ruleValue(char Value)
 {
-    static auto parse(string txt, size_t index)()
+    static auto lex(string txt, size_t index, string name = "")()
     {
-        static if (txt[index] != Value)
+        static if (index >= txt.length)
+            return tuple(false, index, index, "EOF while expecting : " ~ Value);
+        else static if (txt[index] != Value)
             return tuple(false, index, index+1, "Excepted '" ~ Value ~ "', instead got: '" ~ txt[index] ~ "'");
         else
             return tuple(true, index+1, Value);

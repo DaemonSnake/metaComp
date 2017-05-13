@@ -4,10 +4,10 @@ import rule : Rule;
 import type_repr;
 import optional : is_optional, Optional;
 import rule_builtins;
-import tools : is_template;
+import tools : isInstanceOf, forceAssign;
 
-import std.typecons : tuple;
-import std.meta : anySatisfy, aliasSeqOf, staticMap;
+import std.typecons : tuple, Tuple;
+import std.meta : anySatisfy, aliasSeqOf, staticMap, AliasSeq;
 import std.range : iota;
 import std.algorithm : joiner, min;
 import std.conv : to;
@@ -18,36 +18,45 @@ struct _RuleOr(rules...)
     static assert(!anySatisfy!(is_named, rules), "Or rule doesn't allow named arguments!");
     static assert(!anySatisfy!(is_optional, rules), "Or rule doesn't allow optional arguments");
 
-    enum union_member(size_t I) = (is_rule_value!(rules[I]) ? "" :
-                                   rules[I].stringof ~ ' ' ~ "member_" ~ to!string(I) ~ ';');
+    template union_member(size_t I)
+    {
+        static if (is_rule_value!(rules[I]))
+            alias union_member = AliasSeq!();
+        else
+            alias union_member = AliasSeq!(rules[I], "member_" ~ to!string(I));
+    }
 
     string repr;
     size_t index;
-    mixin([staticMap!(union_member, aliasSeqOf!(iota(0, rules.length)))].joiner("").to!string);
+    Tuple!(staticMap!(union_member, aliasSeqOf!(iota(0, rules.length)))) _members;
+    alias _members this;
     
-    static auto parse(string txt, size_t index, string name = "?")()
+    static auto lex(string txt, size_t index, string name = "?")()
     {
-        auto iterator(size_t I = 0)()
+        auto iterator(size_t I = 0, size_t MaxI = 0, size_t Max = 0, string Error = "")()
         {
             static if (I >= rules.length)
-                return tuple(false, 0, index, "Or rule (" ~ name ~
-                             ") failed! All the following alternatives failed:\n" ~
-                             [staticMap!(type_repr, rules)].joiner(" and ").to!string ~ " !");
+                return tuple(false, index, index, "Or rule (" ~ name ~
+                             ") failed! All alternatives failed!\n" ~
+                             "The best match was '" ~ rules[MaxI].stringof ~ "' with error:\n" ~
+                             Error);
             else
             {
-                static if (is_rule_value!(rules[I]))
-                    enum result = rules[I].parse!(txt, index);
-                else
-                    enum result = rules[I].parse!(txt, index, name);
+                enum result = rules[I].lex!(txt, index, name);
                 static if (!result[0])
-                    return iterator!(I+1);
+                {
+                    static if (result[2] > Max)
+                        return iterator!(I+1, I, result[2], result[3]);
+                    else
+                        return iterator!(I+1, MaxI, Max, Error);
+                }
                 else
                 {
                     _RuleOr tmp;
                     tmp.repr = txt[index..min(result[1], txt.length)];
                     tmp.index = I;
                     static if (!is_rule_value!(rules[I]))
-                        mixin("tmp.member_" ~ to!string(I)) = result[2];
+                        __traits(getMember, tmp, "member_" ~ to!string(I)).forceAssign(result[2]);
                     return tuple(true, result[1], tmp);
                 }
             }
@@ -67,7 +76,7 @@ template or_value(alias Value)
 alias RuleOr(rules...) = _RuleOr!(correctArgs!rules);
 
 string apply(alias Func, Ret = string, T)(T value)
-    if (is_template!(_RuleOr, T))
+    if (isInstanceOf!(_RuleOr, T))
 {
     import std.traits : TemplateArgsOf;
 

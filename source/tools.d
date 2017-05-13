@@ -1,7 +1,7 @@
 import std.traits;
-import tools;
+public import std.traits : isInstanceOf;
 
-alias GetTemplate(T) = void;
-alias GetTemplate(T : Base!Args, alias Base, Args...) = Base;
-
-enum is_template(alias Template, T) = __traits(isSame, Template, GetTemplate!T);
+void forceAssign(T, V)(ref T value, V _with)
+{
+    value = cast(T)_with;
+}

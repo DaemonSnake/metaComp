@@ -6,8 +6,10 @@ import rule : skip_separator;
 
 import std.typecons : tuple;
 import std.algorithm : joiner, min;
+import std.range : iota;
 import std.conv : to;
 import std.container : SList;
+import std.meta : staticMap, aliasSeqOf;
 
 struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1)
 {
@@ -15,23 +17,26 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1)
     static assert(!is_optional!Type, "Repeat rule doesn't allow optional arguments");
 
     static if (!is_rule_value!Type)
+    {
         Type[] values;
+        alias values this;
+    }
     size_t length;
     string repr;
 
-    static auto parse(string txt, size_t index, string name = "")()
+    static auto lex(string txt, size_t index, string name = "")()
     {
         auto iterator(size_t _i = index, Values...)()
         {
             enum i = skip_separator(txt, _i);
             static if (is_rule_value!Type)
-                enum parse_res = Type.parse!(txt, i);
+                enum lex_res = Type.lex!(txt, i);
             else
-                enum parse_res = Type.parse!(txt, i, name);
+                enum lex_res = Type.lex!(txt, i, name);
 
             enum end = min(i, txt.length);
-            static if (parse_res[0])
-                return iterator!(parse_res[1], Values, parse_res[2]);
+            static if (lex_res[0])
+                return iterator!(lex_res[1], Values, cast(Type)lex_res[2]);
             else static if (is_rule_value!Type)
                 return tuple(RuleRepeat(Values.length, txt[index..end]), end);
             else
