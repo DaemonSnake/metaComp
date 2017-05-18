@@ -112,3 +112,11 @@ struct RuleInt
         }
     }
 }
+
+struct RuleSkip
+{
+    static auto lex(string txt, size_t index, string name = "")()
+    {
+        return tuple(true, index);
+    }
+}

@@ -7,7 +7,7 @@ import tools;
 
 struct root
 {
-    alias type = RuleStar!(Rule!(named!("name", RuleId), '=', named!("rule", rule_body)));
+    alias type = RulePlus!(Rule!(named!("name", RuleId), '=', named!("rule", rule_body)));
     type _member;
     alias _member this;
     alias lex = type.lex;
@@ -23,10 +23,13 @@ struct rule_body
 
 struct rule_element
 {
-    alias type = RuleOr!('|',
-                         Rule!(named!("type",
-                                      RuleOr!(RuleId, RuleCharLiteral, RuleStringLiteral, RuleInt, rule_body)),
-                               named!("name", Optional!(Rule!(':', named!("name", RuleId))))));
+    alias type =
+        RuleOr!('|',
+                Rule!(named!("type",
+                             RuleOr!(RuleId, RuleCharLiteral, RuleStringLiteral, RuleInt, rule_body)),
+                      named!("name", Optional!(Rule!(':', named!("name", RuleId))))
+                     )
+               );
     type _member;
     alias _member this;
     alias lex = type.lex;
@@ -93,7 +96,8 @@ string parser(rule_body Node)()
 
 void main()
 {
-    enum res = root.lex!("root = [id:name '=' rule_body:rule]*", 0);
+    enum txt = "root = [id:name '=' rule_body:rule]*";
+    enum res = root.lex!(txt, 0);
     static assert(res[0], res[3]);
     pragma(msg, parser!((res[2])));
 }

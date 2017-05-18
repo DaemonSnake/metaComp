@@ -8,7 +8,6 @@ import std.typecons : tuple;
 import std.algorithm : joiner, min;
 import std.range : iota;
 import std.conv : to;
-import std.container : SList;
 import std.meta : staticMap, aliasSeqOf;
 
 struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1)
