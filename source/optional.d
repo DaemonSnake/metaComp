@@ -5,7 +5,7 @@ import tools;
 import std.traits;
 import std.typecons : tuple;
 
-struct _Optional(Rule)
+struct Optional(Rule)
 {
     static assert(!is_named!Rule, "Named types are illegal in Optional contex: " ~ Rule.stringof);
     
@@ -39,6 +39,6 @@ struct _Optional(Rule)
     }
 }
 
-alias Optional(rules...) = _Optional!(correctArg!(rules[0]));
+alias Optional(alias Rule) = Optional!(correctArg!(Rule));
 
-enum is_optional(T) = isInstanceOf!(_Optional, T);
+enum is_optional(T) = isInstanceOf!(Optional, T);

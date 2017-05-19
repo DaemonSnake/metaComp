@@ -1,19 +1,28 @@
-import rule_value : ruleValue, is_rule_value;
+import rule_value : ruleValue, is_rule_value, correctArg;
 import named_rule : is_named;
 import type_repr : type_repr;
 import optional : is_optional;
 import rule : skip_separator;
+import rule_builtins : RuleSkip;
 
 import std.typecons : tuple;
 import std.algorithm : joiner, min;
 import std.range : iota;
 import std.conv : to;
 import std.meta : staticMap, aliasSeqOf;
+import std.traits : Select;
 
-struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1)
+struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
 {
     static assert(!is_named!Type, "Repeat rule doesn't allow named arguments!");
     static assert(!is_optional!Type, "Repeat rule doesn't allow optional arguments");
+    static assert(Separator.length <= 1, "Only one separator allowed for RuleRepeat");
+
+    static if (Separator.length == 1)
+    {
+        alias separator = correctArg!(Separator[0]);
+        static assert(!is_named!(separator), "A named separator is invalid");
+    }
 
     static if (!is_rule_value!Type)
     {
@@ -25,24 +34,48 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1)
 
     static auto lex(string txt, size_t index, string name = "")()
     {
-        auto iterator(size_t _i = index, Values...)()
+        auto iterator(size_t _i, bool started = false, Values...)()
         {
-            enum i = skip_separator(txt, _i);
-            static if (is_rule_value!Type)
-                enum lex_res = Type.lex!(txt, i);
-            else
-                enum lex_res = Type.lex!(txt, i, name);
+            auto end_return(size_t end)
+            {
+                static if (is_rule_value!Type)
+                    return tuple(RuleRepeat(Values.length, txt[index..end]), end);
+                else
+                    return tuple(RuleRepeat([Values], Values.length, txt[index..end]), end);
+            }
+            
+            auto main_it(size_t i)()
+            {
+                static if (is_rule_value!Type)
+                    enum lex_res = Type.lex!(txt, i);
+                else
+                    enum lex_res = Type.lex!(txt, i, name);
 
-            enum end = min(i, txt.length);
-            static if (lex_res[0])
-                return iterator!(lex_res[1], Values, cast(Type)lex_res[2]);
-            else static if (is_rule_value!Type)
-                return tuple(RuleRepeat(Values.length, txt[index..end]), end);
+                static if (lex_res[0])
+                {
+                    static if (is_rule_value!Type)
+                        return iterator!(skip_separator(txt, lex_res[1]), true);
+                    else
+                        return iterator!(skip_separator(txt, lex_res[1]), true, Values,
+                                         cast(Type)lex_res[2]);
+                }
+                else
+                    return end_return(min(i, txt.length));
+            }
+
+            static if (Separator.length == 1 && started)
+            {
+                enum res = separator.lex!(txt, _i);
+                static if (!res[0])
+                    return end_return(min(_i, txt.length));
+                else
+                    return main_it!(skip_separator(txt, res[1]));
+            }
             else
-                return tuple(RuleRepeat([Values], Values.length, txt[index..end]), end);
+                return main_it!(_i);
         }
 
-        enum result = iterator();
+        enum result = iterator!(skip_separator(txt, index));
 
         static if (result[0].length < Min)
             return tuple(false, index, result[1],
@@ -61,9 +94,10 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1)
     }
 }
 
-alias RuleRepeat(alias T, size_t Min = 0, size_t Limit = -1) =
-    RuleRepeat!(ruleValue!T, Min, Limit);
+alias RuleRepeat(alias T, size_t Min = 0, size_t Limit = -1, Separator...) =
+    RuleRepeat!(ruleValue!T, Min, Limit, Separator);
 
-alias RuleStar = RuleRepeat;
-alias RulePlus(alias T) = RuleRepeat!(T, 1);
-alias RulePlus(T) = RuleRepeat!(T, 1);
+alias RuleStar(T, Separator...) = RuleRepeat!(T, 0, -1, Separator);
+alias RuleStar(alias T, Separator...) = RuleRepeat!(T, 0, -1, Separator);
+alias RulePlus(alias T, Separator...) = RuleRepeat!(T, 1, -1, Separator);
+alias RulePlus(T, Separator...) = RuleRepeat!(T, 1, -1, Separator);
