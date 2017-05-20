@@ -3,7 +3,6 @@ import rule_value : correctArg, ruleValue, is_rule_value;
 import tools;
 
 import std.traits;
-import std.typecons : tuple;
 
 struct Optional(Rule)
 {
@@ -35,7 +34,7 @@ struct Optional(Rule)
             else
                 ret.repr = result[2].repr;
         }
-        return tuple(true, result[1], ret);
+        return lex_succes(result[1], ret);
     }
 }
 

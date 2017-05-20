@@ -35,19 +35,19 @@ struct Rule(InArgs...)
         auto iterator(size_t index = skip_separator(txt, _index), size_t I = 0, Rule value = Rule())()
         {
             static if (I >= args.length)
-                return tuple(true, index, value);
+                return lex_succes(index, value);
             else
             {
                 enum result = args[I].lex!(txt, index);
                 static if (!result[0])
                 {
                     static if (name.length == 0)
-                        return tuple(false, result[1], result[2], result[3]);
+                        return lex_failure(result[1], result[2], result[3]);
                     else static if (result[2] >= txt.length)
-                        return tuple(false, result[1], result[2], "EOF while parsing '" ~ name ~
+                        return lex_failure(result[1], result[2], "EOF while parsing '" ~ name ~
                                      "':\n Expected '" ~ args[I].stringof ~ "'!");
                     else
-                        return tuple(false, result[1], result[2],
+                        return lex_failure(result[1], result[2],
                                      "Error while parsing '" ~ name ~ "':\n" ~ result[3]);
                 }
                 else
@@ -60,7 +60,7 @@ struct Rule(InArgs...)
                     }();
                     enum next = iterator!(skip_separator(txt, result[1]), I+1, v1);
                     static if (!next[0])
-                        return tuple(false, next[1], next[2], next[3]);
+                        return lex_failure(next[1], next[2], next[3]);
                     else
                     {
                         enum v2 = {
@@ -72,7 +72,7 @@ struct Rule(InArgs...)
                             }
                             return v;
                         }();
-                        return tuple(true, next[1], v2);
+                        return lex_succes(next[1], v2);
                     }
                 }
             }

@@ -1,4 +1,3 @@
-import std.typecons : tuple;
 import std.ascii : isAlphaNum;
 import std.meta;
 import std.algorithm : min;
@@ -14,21 +13,21 @@ struct ruleValue(string repr)
         enum min_l = min(txt.length, index+repr.length);
         
         static if (index >= txt.length)
-            return tuple(false, txt.length, txt.length, "EOF");
+            return lex_failure(txt.length, txt.length, "EOF");
         else static if ((index + repr.length > txt.length) ||
                    (txt[index..index+repr.length] != repr))
-            return tuple(false, index, min_l,
+            return lex_failure(index, min_l,
                          "Expected '" ~ repr ~ "', instead got: '" ~ txt[index..min_l] ~ "'");
         else static if (index + repr.length != txt.length && isId(txt[index+repr.length]))
         {
             size_t end = index+repr.length;
             while (end < txt.length && isId(txt[end]))
                 end++;
-            return tuple(false, index, end, "Expected '" ~ repr ~ "', instead got: '" ~
+            return lex_failure(index, end, "Expected '" ~ repr ~ "', instead got: '" ~
                          txt[index..end] ~ "'");
         }
         else
-            return tuple(true, index + repr.length, repr);
+            return lex_succes(index + repr.length, repr);
     }
 }
 
@@ -37,11 +36,11 @@ struct ruleValue(char Value)
     static auto lex(string txt, size_t index, string name = "")()
     {
         static if (index >= txt.length)
-            return tuple(false, index, index, "EOF while expecting : " ~ Value);
+            return lex_failure(index, index, "EOF while expecting : " ~ Value);
         else static if (txt[index] != Value)
-            return tuple(false, index, index+1, "Excepted '" ~ Value ~ "', instead got: '" ~ txt[index] ~ "'");
+            return lex_failure(index, index+1, "Excepted '" ~ Value ~ "', instead got: '" ~ txt[index] ~ "'");
         else
-            return tuple(true, index+1, Value);
+            return lex_succes(index+1, Value);
     }
 }
 

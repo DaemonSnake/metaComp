@@ -4,6 +4,7 @@ import type_repr : type_repr;
 import optional : is_optional;
 import rule : skip_separator;
 import rule_builtins : RuleSkip;
+import tools;
 
 import std.typecons : tuple;
 import std.algorithm : joiner, min;
@@ -78,19 +79,19 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
         enum result = iterator!(skip_separator(txt, index));
 
         static if (result[0].length < Min)
-            return tuple(false, index, result[1],
+            return lex_failure(index, result[1],
                          "Issuficient number of " ~ type_repr!Type ~
                          "!\nExpected at least " ~ Min.to!string ~
                          " repetitions and instead received " ~
                          result.length.to!string);
         else static if (result[0].length >= Limit)
-            return tuple(false, index, result[1],
+            return lex_failure(index, result[1],
                          "To many number of " ~ type_repr!Type ~
                          "!\nExpected under " ~ Limit.to!string ~
                          " repetitions and instead received " ~
                          result.length.to!string);            
         else
-            return tuple(true, result[1], result[0]); 
+            return lex_succes(result[1], result[0]); 
     }
 }
 

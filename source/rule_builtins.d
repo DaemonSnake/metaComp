@@ -1,7 +1,7 @@
-import std.typecons : tuple;
 import std.ascii : isAlphaNum, isAlpha;
 import std.conv : to;
 import std.algorithm : min;
+import tools;
 
 struct RuleId
 {
@@ -10,9 +10,9 @@ struct RuleId
     static auto lex(string txt, size_t index, string name = "")()
     {
         static if (index >= txt.length)
-            return tuple(false, index, txt.length, "Index outside of bounds");
+            return lex_failure(index, txt.length, "Index outside of bounds");
         else static if (!txt[index].isAlpha && txt[index] != '_')
-            return tuple(false, index, index+1, "Invalid Id: doesn't start with '_' nor is in a..z and A..Z");
+            return lex_failure(index, index+1, "Invalid Id: doesn't start with '_' nor is in a..z and A..Z");
         else
         {
             size_t i = index+1;
@@ -20,7 +20,7 @@ struct RuleId
                 i++;
             RuleId ret;
             ret.repr = txt[index..i];
-            return tuple(true, i, ret);
+            return lex_succes(i, ret);
         }
     }
 }
@@ -33,9 +33,9 @@ struct RuleStringLiteral
     static auto lex(string txt, size_t index, string name = "")()
     {
         static if (index >= txt.length)
-            return tuple(false, index, txt.length, "Index outside of bounds");
+            return lex_failure(index, txt.length, "Index outside of bounds");
         else static if (txt[index] != '"')
-            return tuple(false, index, index+1, "A String literal must start with a '\"' character, instead found : " ~ txt[index]);
+            return lex_failure(index, index+1, "A String literal must start with a '\"' character, instead found : " ~ txt[index]);
         else
         {
             size_t i = index+1;
@@ -52,7 +52,7 @@ struct RuleStringLiteral
                 ret.value = txt[index+1..i-1];
             else
                 ret.value = "";
-            return tuple(true, i, ret);
+            return lex_succes(i, ret);
         }
     }
 }
@@ -65,9 +65,9 @@ struct RuleCharLiteral
     static auto lex(string txt, size_t index, string name = "")()
     {
         static if (index >= txt.length)
-            return tuple(false, index, txt.length, "Index outside of bounds");
+            return lex_failure(index, txt.length, "Index outside of bounds");
         else static if (txt[index] != '\'')
-            return tuple(false, index, index+1, "A Char literal must start with a ' character, instead found : " ~ txt[index]);
+            return lex_failure(index, index+1, "A Char literal must start with a ' character, instead found : " ~ txt[index]);
         else
         {
             size_t i = index+1;
@@ -84,7 +84,7 @@ struct RuleCharLiteral
                 ret.value = txt[index+1..i-1];
             else
                 ret.value = "";
-            return tuple(true, i, ret);
+            return lex_succes(i, ret);
         }
     }
 }
@@ -97,9 +97,9 @@ struct RuleInt
     static auto lex(string txt, size_t index, string name = "")()
     {
         static if (index >= txt.length)
-            return tuple(false, index, txt.length, "Index outside of bounds");
+            return lex_failure(index, txt.length, "Index outside of bounds");
         else static if ((txt[index] < '0' || txt[index] > '9') && txt[index] != '-')
-            return tuple(false, index, index+1, "A Int literal must start in '0'..'9'");
+            return lex_failure(index, index+1, "A Int literal must start in '0'..'9'");
         else
         {
             size_t i = index+1;
@@ -108,7 +108,7 @@ struct RuleInt
             RuleInt ret;
             ret.repr = txt[index..i];
             ret.value = to!long(ret.repr);
-            return tuple(true, i, ret);
+            return lex_succes(i, ret);
         }
     }
 }
@@ -117,6 +117,6 @@ struct RuleSkip
 {
     static auto lex(string txt, size_t index, string name = "")()
     {
-        return tuple(true, index);
+        return lex_succes(index);
     }
 }

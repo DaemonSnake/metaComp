@@ -4,9 +4,9 @@ import rule : Rule;
 import type_repr;
 import optional : is_optional, Optional;
 import rule_builtins;
-import tools : isInstanceOf, forceAssign;
+import tools;
 
-import std.typecons : tuple, Tuple;
+import std.typecons : Tuple;
 import std.meta : anySatisfy, aliasSeqOf, staticMap, AliasSeq;
 import std.range : iota;
 import std.algorithm : joiner, min;
@@ -36,7 +36,7 @@ struct _RuleOr(rules...)
         auto iterator(size_t I = 0, size_t MaxI = 0, size_t Max = 0, string Error = "")()
         {
             static if (I >= rules.length)
-                return tuple(false, index, index, "Or rule (" ~ name ~
+                return lex_failure(index, index, "Or rule (" ~ name ~
                              ") failed! All alternatives failed!\n" ~
                              "The best match was '" ~ rules[MaxI].stringof ~ "' with error:\n" ~
                              Error);
@@ -57,7 +57,7 @@ struct _RuleOr(rules...)
                     tmp.index = I;
                     static if (!is_rule_value!(rules[I]))
                         __traits(getMember, tmp, "member_" ~ to!string(I)).forceAssign(result[2]);
-                    return tuple(true, result[1], tmp);
+                    return lex_succes(result[1], tmp);
                 }
             }
         }
