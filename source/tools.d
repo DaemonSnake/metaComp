@@ -7,18 +7,30 @@ void forceAssign(T, V)(ref T value, V _with)
     value = cast(T)_with;
 }
 
-alias lex_return(T) =
-    Tuple!(bool, "state",
-           size_t, "begin",
-           size_t, "end",
-           T, "data");
+struct lex_return(T)
+{
+    bool state;
+    size_t end;
+    T data;
+    @property ref auto _tuple() { return tuple(this.tupleof); }
+    alias _tuple this;
+}
+
+struct lex_error
+{
+    bool state;
+    size_t begin, end;
+    string msg;
+    @property ref auto _tuple() { return tuple(this.tupleof); }
+    alias _tuple this;
+}
 
 auto lex_succes(T)(size_t end, T data)
 {
-    return tuple(true, end, data);
+    return lex_return!T(true, end, data);
 }
 
 auto lex_failure(size_t begin, size_t end, string msg)
 {
-    return tuple(false, begin, end, msg);
+    return lex_error(false, begin, end, msg);
 }
