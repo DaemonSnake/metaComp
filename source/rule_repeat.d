@@ -21,7 +21,7 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
 
     static if (Separator.length == 1)
     {
-        alias separator = correctArg!(Separator[0]);
+        alias separator = correctArg!(Separator.state);
         static assert(!is_named!(separator), "A named separator is invalid");
     }
 
@@ -52,13 +52,13 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
                 else
                     enum lex_res = Type.lex!(txt, i, name);
 
-                static if (lex_res[0])
+                static if (lex_res.state)
                 {
                     static if (is_rule_value!Type)
-                        return iterator!(skip_separator(txt, lex_res[1]), true);
+                        return iterator!(skip_separator(txt, lex_res.end), true);
                     else
-                        return iterator!(skip_separator(txt, lex_res[1]), true, Values,
-                                         cast(Type)lex_res[2]);
+                        return iterator!(skip_separator(txt, lex_res.end), true, Values,
+                                         cast(Type)lex_res.data);
                 }
                 else
                     return end_return(min(i, txt.length));
@@ -67,10 +67,10 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
             static if (Separator.length == 1 && started)
             {
                 enum res = separator.lex!(txt, _i);
-                static if (!res[0])
+                static if (!res.state)
                     return end_return(min(_i, txt.length));
                 else
-                    return main_it!(skip_separator(txt, res[1]));
+                    return main_it!(skip_separator(txt, res.end));
             }
             else
                 return main_it!(_i);

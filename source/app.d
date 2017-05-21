@@ -67,6 +67,6 @@ void main()
 {
     enum txt = "root = [id:name '=' rule_body:rule]*";
     enum res = root.lex!(txt, 0);
-    static assert(res[0], res[3]);
-    pragma(msg, parser!((res[2])));
+    static assert(res.state, res.msg);
+    pragma(msg, parser!((res.data)));
 }

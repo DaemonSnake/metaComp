@@ -12,7 +12,7 @@ struct Optional(Rule)
     static if (!is_rule_value!Rule)
         Rule value;
     else
-        typeof((TemplateArgsOf!Rule)[0]) value;
+        typeof((TemplateArgsOf!Rule).state) value;
     string repr;
 
     static auto lex(string txt, size_t index, string name = "")()
@@ -26,15 +26,15 @@ struct Optional(Rule)
                 return Rule.lex!(txt, index, name);
         }();
 
-        static if (result[0]) {
+        static if (result.state) {
             ret.found = true;
-            ret.value = result[2];
+            ret.value = result.data;
             static if (is_rule_value!Rule)
-                ret.repr = result[2];
+                ret.repr = result.data;
             else
-                ret.repr = result[2].repr;
+                ret.repr = result.data.repr;
         }
-        return lex_succes(result[1], ret);
+        return lex_succes(result.end, ret);
     }
 }
 

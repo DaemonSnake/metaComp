@@ -39,40 +39,37 @@ struct Rule(InArgs...)
             else
             {
                 enum result = args[I].lex!(txt, index);
-                static if (!result[0])
+                static if (!result.state)
                 {
                     static if (name.length == 0)
-                        return lex_failure(result[1], result[2], result[3]);
-                    else static if (result[2] >= txt.length)
-                        return lex_failure(result[1], result[2], "EOF while parsing '" ~ name ~
+                        return lex_failure(result.begin, result.end, result.msg);
+                    else static if (result.end >= txt.length)
+                        return lex_failure(result.begin, result.end, "EOF while parsing '" ~ name ~
                                      "':\n Expected '" ~ args[I].stringof ~ "'!");
                     else
-                        return lex_failure(result[1], result[2],
-                                     "Error while parsing '" ~ name ~ "':\n" ~ result[3]);
+                        return lex_failure(result.begin, result.end,
+                                     "Error while parsing '" ~ name ~ "':\n" ~ result.msg);
                 }
                 else
                 {
                     enum v1 = {
                         auto v = value;
                         static if (is_named!(args[I]))
-                            __traits(getMember, v, args[I].name).forceAssign(result[2]);
+                            __traits(getMember, v, args[I].name).forceAssign(result.data);
                         return v;
                     }();
-                    enum next = iterator!(skip_separator(txt, result[1]), I+1, v1);
-                    static if (!next[0])
-                        return lex_failure(next[1], next[2], next[3]);
+                    enum next = iterator!(skip_separator(txt, result.end), I+1, v1);
+                    static if (!next.state)
+                        return lex_failure(next.begin, next.end, next.msg);
                     else
                     {
                         enum v2 = {
-                            auto v = next[2];
+                            auto v = next.data;
                             static if (I == 0)
-                            {
-                                v.forceAssign(next[2]);
-                                v.repr = txt[index..min(txt.length, next[1])];
-                            }
+                                v.repr = txt[index..min(txt.length, next.end)];
                             return v;
                         }();
-                        return lex_succes(next[1], v2);
+                        return lex_succes(next.end, v2);
                     }
                 }
             }

@@ -43,21 +43,21 @@ struct _RuleOr(rules...)
             else
             {
                 enum result = rules[I].lex!(txt, index, name);
-                static if (!result[0])
+                static if (!result.state)
                 {
-                    static if (result[2] > Max)
-                        return iterator!(I+1, I, result[2], result[3]);
+                    static if (result.end > Max)
+                        return iterator!(I+1, I, (result.end), (result.msg));
                     else
                         return iterator!(I+1, MaxI, Max, Error);
                 }
                 else
                 {
                     _RuleOr tmp;
-                    tmp.repr = txt[index..min(result[1], txt.length)];
+                    tmp.repr = txt[index..min(result.end, txt.length)];
                     tmp.index = I;
                     static if (!is_rule_value!(rules[I]))
-                        __traits(getMember, tmp, "member_" ~ to!string(I)).forceAssign(result[2]);
-                    return lex_succes(result[1], tmp);
+                        __traits(getMember, tmp, "member_" ~ to!string(I)).forceAssign(result.data);
+                    return lex_succes(result.end, tmp);
                 }
             }
         }
