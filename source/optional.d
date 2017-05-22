@@ -12,7 +12,7 @@ struct Optional(Rule)
     static if (!is_rule_value!Rule)
         Rule value;
     else
-        typeof((TemplateArgsOf!Rule).state) value;
+        typeof((TemplateArgsOf!Rule)[0]) value;
     string repr;
 
     static auto lex(string txt, size_t index, string name = "")()

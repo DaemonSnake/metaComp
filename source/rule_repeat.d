@@ -22,7 +22,7 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
 
     static if (Separator.length == 1)
     {
-        alias separator = correctArg!(Separator.state);
+        alias separator = correctArg!(Separator[0]);
         static assert(!is_named!(separator), "A named separator is invalid");
     }
 
