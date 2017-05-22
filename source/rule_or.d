@@ -18,6 +18,8 @@ struct _RuleOr(rules...)
     static assert(!anySatisfy!(is_named, rules), "Or rule doesn't allow named arguments!");
     static assert(!anySatisfy!(is_optional, rules), "Or rule doesn't allow optional arguments");
 
+    mixin lex_correct!();
+
     template union_member(size_t I)
     {
         static if (is_rule_value!(rules[I]))
@@ -57,7 +59,7 @@ struct _RuleOr(rules...)
                     tmp.index = I;
                     static if (!is_rule_value!(rules[I]))
                         __traits(getMember, tmp, "member_" ~ to!string(I)).forceAssign(result.data);
-                    return lex_succes(result.end, tmp);
+                    return lex_succes(index, result.end, tmp);
                 }
             }
         }

@@ -8,6 +8,8 @@ enum is_rule_value(T) = isInstanceOf!(ruleValue, T);
 
 struct ruleValue(string repr)
 {
+    mixin lex_correct!();
+    
     static auto lex(string txt, size_t index, string name = "")()
     {
         enum min_l = min(txt.length, index+repr.length);
@@ -27,12 +29,14 @@ struct ruleValue(string repr)
                          txt[index..end] ~ "'");
         }
         else
-            return lex_succes(index + repr.length, repr);
+            return lex_succes(index, index + repr.length, repr);
     }
 }
 
 struct ruleValue(char Value)
 {
+    mixin lex_correct!();
+    
     static auto lex(string txt, size_t index, string name = "")()
     {
         static if (index >= txt.length)
@@ -40,7 +44,7 @@ struct ruleValue(char Value)
         else static if (txt[index] != Value)
             return lex_failure(index, index+1, "Excepted '" ~ Value ~ "', instead got: '" ~ txt[index] ~ "'");
         else
-            return lex_succes(index+1, Value);
+            return lex_succes(index, index+1, Value);
     }
 }
 

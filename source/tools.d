@@ -1,36 +1,36 @@
 import std.traits;
-import std.typecons : Tuple, tuple;
 public import std.traits : isInstanceOf;
 
 void forceAssign(T, V)(ref T value, V _with)
 {
-    value = cast(T)_with;
+    static if (__traits(compiles, cast(T)_with))
+        value = cast(T)_with;
 }
 
 struct lex_return(T)
 {
     bool state;
-    size_t end;
-    T data;
-    @property ref auto _tuple() { return tuple(this.tupleof); }
-    alias _tuple this;
-}
-
-struct lex_error
-{
-    bool state;
     size_t begin, end;
-    string msg;
-    @property ref auto _tuple() { return tuple(this.tupleof); }
-    alias _tuple this;
+    union
+    {
+        T data;
+        string msg;
+    }
 }
 
-auto lex_succes(T)(size_t end, T data)
+auto lex_succes(T)(size_t begin, size_t end, T data)
 {
-    return lex_return!T(true, end, data);
+    lex_return!T tmp = {true, begin, end, data : data};
+    return tmp;
 }
 
-auto lex_failure(size_t begin, size_t end, string msg)
+auto lex_failure(T)(size_t begin, size_t end, string msg)
 {
-    return lex_error(false, begin, end, msg);
+    lex_return!T tmp = {false, begin, end, msg : msg};
+    return tmp;
+}
+
+mixin template lex_correct()
+{
+    alias lex_failure = tools.lex_failure!(typeof(this));
 }

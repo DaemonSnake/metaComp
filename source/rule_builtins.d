@@ -6,6 +6,8 @@ import tools;
 struct RuleId
 {
     string repr;
+
+    mixin lex_correct!();
     
     static auto lex(string txt, size_t index, string name = "")()
     {
@@ -20,7 +22,7 @@ struct RuleId
                 i++;
             RuleId ret;
             ret.repr = txt[index..i];
-            return lex_succes(i, ret);
+            return lex_succes(index, i, ret);
         }
     }
 }
@@ -29,6 +31,8 @@ struct RuleStringLiteral
 {
     string repr;
     string value;
+
+    mixin lex_correct!();
     
     static auto lex(string txt, size_t index, string name = "")()
     {
@@ -52,7 +56,7 @@ struct RuleStringLiteral
                 ret.value = txt[index+1..i-1];
             else
                 ret.value = "";
-            return lex_succes(i, ret);
+            return lex_succes(index, i, ret);
         }
     }
 }
@@ -61,6 +65,8 @@ struct RuleCharLiteral
 {
     string repr;
     string value;
+
+    mixin lex_correct!();
     
     static auto lex(string txt, size_t index, string name = "")()
     {
@@ -84,7 +90,7 @@ struct RuleCharLiteral
                 ret.value = txt[index+1..i-1];
             else
                 ret.value = "";
-            return lex_succes(i, ret);
+            return lex_succes(index, i, ret);
         }
     }
 }
@@ -93,6 +99,8 @@ struct RuleInt
 {
     string repr;
     long value;
+
+    mixin lex_correct!();
     
     static auto lex(string txt, size_t index, string name = "")()
     {
@@ -108,15 +116,7 @@ struct RuleInt
             RuleInt ret;
             ret.repr = txt[index..i];
             ret.value = to!long(ret.repr);
-            return lex_succes(i, ret);
+            return lex_succes(index, i, ret);
         }
-    }
-}
-
-struct RuleSkip
-{
-    static auto lex(string txt, size_t index, string name = "")()
-    {
-        return lex_succes(index);
     }
 }

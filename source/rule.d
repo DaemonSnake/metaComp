@@ -25,6 +25,7 @@ alias named_members(T) = AliasSeq!(T.type, T.name);
 
 struct Rule(InArgs...)
 {
+    mixin lex_correct!();
     alias args = correctArgs!InArgs;
     string repr;
     Tuple!(staticMap!(named_members, Filter!(is_named, args))) _members;
@@ -35,7 +36,7 @@ struct Rule(InArgs...)
         auto iterator(size_t index = skip_separator(txt, _index), size_t I = 0, Rule value = Rule())()
         {
             static if (I >= args.length)
-                return lex_succes(index, value);
+                return lex_succes(_index, index, value);
             else
             {
                 enum result = args[I].lex!(txt, index);
@@ -63,13 +64,14 @@ struct Rule(InArgs...)
                         return lex_failure(next.begin, next.end, next.msg);
                     else
                     {
+                        enum end = min(txt.length, next.end);
                         enum v2 = {
                             auto v = next.data;
                             static if (I == 0)
-                                v.repr = txt[index..min(txt.length, next.end)];
+                                v.repr = txt[index..end];
                             return v;
                         }();
-                        return lex_succes(next.end, v2);
+                        return lex_succes(index, end, v2);
                     }
                 }
             }

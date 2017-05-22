@@ -34,7 +34,7 @@ struct Optional(Rule)
             else
                 ret.repr = result.data.repr;
         }
-        return lex_succes(result.end, ret);
+        return lex_succes(index, result.end, ret);
     }
 }
 

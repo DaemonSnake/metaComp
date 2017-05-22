@@ -3,7 +3,6 @@ import named_rule : is_named;
 import type_repr : type_repr;
 import optional : is_optional;
 import rule : skip_separator;
-import rule_builtins : RuleSkip;
 import tools;
 
 import std.typecons : tuple;
@@ -18,6 +17,8 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
     static assert(!is_named!Type, "Repeat rule doesn't allow named arguments!");
     static assert(!is_optional!Type, "Repeat rule doesn't allow optional arguments");
     static assert(Separator.length <= 1, "Only one separator allowed for RuleRepeat");
+
+    mixin lex_correct!();
 
     static if (Separator.length == 1)
     {
@@ -91,7 +92,7 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
                          " repetitions and instead received " ~
                          result.length.to!string);            
         else
-            return lex_succes(result[1], result[0]); 
+            return lex_succes(index, result[1], result[0]); 
     }
 }
 
