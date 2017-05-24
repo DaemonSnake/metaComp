@@ -11,6 +11,7 @@ import std.range : iota;
 import std.conv : to;
 import std.meta : staticMap, aliasSeqOf;
 import std.traits : Select;
+import std.string;
 
 struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
 {
@@ -36,15 +37,15 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
 
     static lex_return lex(string txt, size_t index, string name = "?")()
     {
-        alias ret_type = Tuple!(typeof(this), size_t);
+        alias ret_type = Tuple!(typeof(this), size_t, string);
         ret_type iterator(size_t _i, bool started = false, Values...)()
         {
-            ret_type end_return(size_t end)
+            ret_type end_return(size_t end, string msg)
             {
                 static if (is_rule_value!Type)
-                    return tuple(RuleRepeat(Values.length, txt[index..end]), end);
+                    return tuple(RuleRepeat(Values.length, txt[index..end]), end, msg);
                 else
-                    return tuple(RuleRepeat([Values], Values.length, txt[index..end]), end);
+                    return tuple(RuleRepeat([Values], Values.length, txt[index..end]), end, msg);
             }
             
             ret_type main_it(size_t i)()
@@ -60,14 +61,14 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
                                          cast(Type)lex_res.data);
                 }
                 else
-                    return end_return(min(i, txt.length));
+                    return end_return(min(i, txt.length), lex_res.msg);
             }
 
             static if (Separator.length == 1 && started)
             {
                 enum res = separator.lex!(txt, _i);
                 static if (!res.state)
-                    return end_return(min(_i, txt.length));
+                    return end_return(min(_i, txt.length), res.msg);
                 else
                     return main_it!(skip_separator(txt, res.end));
             }
@@ -80,18 +81,18 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
         static if (result[0].length < Min) {
             return lex_failure(index, result[1],
                          "Issuficient number of " ~ type_repr!Type ~
-                         "!\nExpected at least " ~ Min.to!string ~
+                         "!\n\tExpected at least " ~ Min.to!string ~
                          " repetitions and instead received " ~
-                         result[0].length.to!string);
+                               result[0].length.to!string ~ '\n' ~ result[2].replace("\n", "\n\t\t"));
         }
         else static if (result[0].length >= Limit)
             return lex_failure(index, result[1],
                          "To many number of " ~ type_repr!Type ~
-                         "!\nExpected under " ~ Limit.to!string ~
+                         "!\n\tExpected under " ~ Limit.to!string ~
                          " repetitions and instead received " ~
-                         result[0].length.to!string);
+                               result[0].length.to!string ~ '\n' ~ result[2].replace("\n", "\n\t\t"));
         else
-            return lex_succes(index, result[1], result[0]); 
+            return lex_succes(index, result[1], result[0]);
     }
 }
 

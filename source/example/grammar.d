@@ -12,7 +12,7 @@ struct root
 
 struct rule_body
 {
-    alias type = Rule!('[', named!("content", RuleStar!rule_element), ']', named!("postfix", Optional!(RuleOr!('+', '?', '*'))));
+    alias type = Rule!('[', named!("content", RulePlus!rule_element), ']', named!("postfix", Optional!(RuleOr!('+', '?', '*'))));
     type _member;
     alias _member this;
     alias lex = type.lex;
@@ -38,4 +38,4 @@ struct rule_element
 
 // root = [id:name '=' rule_body:rule]*
 // rule_body = ['[' rule_element*:content ']' ['+' | '?' | '*']?:postfix]
-// rule_element = [ [[id | string_lit | char_lit | number | rule_body]:type [':' id:name]?:name ]+('|') ]
+// rule_element = [ [[id | char_lit | string_lit | number | rule_body]:type [':' id:name]?:name ]+('|') ]
