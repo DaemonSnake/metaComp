@@ -1,3 +1,4 @@
+module example.grammar;
 public import rule;
 public import tools;
 
@@ -24,11 +25,13 @@ struct rule_element
                 Rule!(named!("type",
                              RuleOr!(RuleId, RuleCharLiteral, RuleStringLiteral, RuleInt, rule_body)),
                       named!("name", Optional!(Rule!(':', named!("name", RuleId))))
-                      )
-                );
-
+                      ));
     
     type _member;
     alias _member this;
     alias lex = type.lex;
 }
+
+// root = [id:name '=' rule_body:rule]*
+// rule_body = ['[' rule_element*:content ']' ['+' | '?' | '*']?:postfix]
+// rule_element = [ [[id | string_lit | char_lit | number | rule_body]:type [':' id:name]?:name ]+('|') ]

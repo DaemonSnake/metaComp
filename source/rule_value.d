@@ -5,12 +5,13 @@ import tools;
 
 alias isId = (c) => isAlphaNum(c) || c == '_';
 enum is_rule_value(T) = isInstanceOf!(ruleValue, T);
+enum is_rule_value(alias T) = false;
 
 struct ruleValue(string repr)
 {
     mixin lex_correct!();
     
-    static auto lex(string txt, size_t index, string name = "")()
+    static auto lex(string txt, size_t index, string name = "?")()
     {
         enum min_l = min(txt.length, index+repr.length);
         
@@ -37,7 +38,7 @@ struct ruleValue(char Value)
 {
     mixin lex_correct!();
     
-    static auto lex(string txt, size_t index, string name = "")()
+    static auto lex(string txt, size_t index, string name = "?")()
     {
         static if (index >= txt.length)
             return lex_failure(index, index, "EOF while expecting : " ~ Value);

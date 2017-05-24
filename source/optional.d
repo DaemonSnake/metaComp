@@ -15,7 +15,7 @@ struct Optional(Rule)
         typeof((TemplateArgsOf!Rule)[0]) value;
     string repr;
 
-    static auto lex(string txt, size_t index, string name = "")()
+    static lex_return!(typeof(this)) lex(string txt, size_t index, string name = "?")()
     {
         Optional!Rule ret;
 

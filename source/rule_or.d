@@ -33,9 +33,9 @@ struct _RuleOr(rules...)
     Tuple!(staticMap!(union_member, aliasSeqOf!(iota(0, rules.length)))) _members;
     alias _members this;
     
-    static auto lex(string txt, size_t index, string name = "?")()
+    static lex_return lex(string txt, size_t index, string name = "?")()
     {
-        auto iterator(size_t I = 0, size_t MaxI = 0, size_t Max = 0, string Error = "")()
+        lex_return iterator(size_t I = 0, size_t MaxI = 0, size_t Max = 0, string Error = "")()
         {
             static if (I >= rules.length)
                 return lex_failure(index, index, "Or rule (" ~ name ~

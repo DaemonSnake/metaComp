@@ -1,5 +1,6 @@
-import std.traits;
 public import std.traits : isInstanceOf;
+import std.traits;
+import rule_value : is_rule_value;
 
 void forceAssign(T, V)(ref T value, V _with)
 {
@@ -33,4 +34,5 @@ auto lex_failure(T)(size_t begin, size_t end, string msg)
 mixin template lex_correct()
 {
     alias lex_failure = tools.lex_failure!(typeof(this));
+    alias lex_return = tools.lex_return!(typeof(this));
 }

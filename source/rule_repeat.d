@@ -5,7 +5,7 @@ import optional : is_optional;
 import rule : skip_separator;
 import tools;
 
-import std.typecons : tuple;
+import std.typecons : tuple, Tuple;
 import std.algorithm : joiner, min;
 import std.range : iota;
 import std.conv : to;
@@ -34,11 +34,12 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
     size_t length;
     string repr;
 
-    static auto lex(string txt, size_t index, string name = "")()
+    static lex_return lex(string txt, size_t index, string name = "?")()
     {
-        auto iterator(size_t _i, bool started = false, Values...)()
+        alias ret_type = Tuple!(typeof(this), size_t);
+        ret_type iterator(size_t _i, bool started = false, Values...)()
         {
-            auto end_return(size_t end)
+            ret_type end_return(size_t end)
             {
                 static if (is_rule_value!Type)
                     return tuple(RuleRepeat(Values.length, txt[index..end]), end);
@@ -46,12 +47,9 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
                     return tuple(RuleRepeat([Values], Values.length, txt[index..end]), end);
             }
             
-            auto main_it(size_t i)()
+            ret_type main_it(size_t i)()
             {
-                static if (is_rule_value!Type)
-                    enum lex_res = Type.lex!(txt, i);
-                else
-                    enum lex_res = Type.lex!(txt, i, name);
+                enum lex_res = Type.lex!(txt, i, name);
 
                 static if (lex_res.state)
                 {
@@ -69,7 +67,7 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
             {
                 enum res = separator.lex!(txt, _i);
                 static if (!res.state)
-                    return end_return(min(_i, txt.length));
+                    return end_return(min(res.end, txt.length));
                 else
                     return main_it!(skip_separator(txt, res.end));
             }
@@ -79,18 +77,19 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
 
         enum result = iterator!(skip_separator(txt, index));
 
-        static if (result[0].length < Min)
+        static if (result[0].length < Min) {
             return lex_failure(index, result[1],
                          "Issuficient number of " ~ type_repr!Type ~
                          "!\nExpected at least " ~ Min.to!string ~
                          " repetitions and instead received " ~
-                         result.length.to!string);
+                         result[0].length.to!string);
+        }
         else static if (result[0].length >= Limit)
             return lex_failure(index, result[1],
                          "To many number of " ~ type_repr!Type ~
                          "!\nExpected under " ~ Limit.to!string ~
                          " repetitions and instead received " ~
-                         result.length.to!string);            
+                         result[0].length.to!string);            
         else
             return lex_succes(index, result[1], result[0]); 
     }

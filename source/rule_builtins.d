@@ -9,7 +9,7 @@ struct RuleId
 
     mixin lex_correct!();
     
-    static auto lex(string txt, size_t index, string name = "")()
+    static lex_return lex(string txt, size_t index, string name = "?")()
     {
         static if (index >= txt.length)
             return lex_failure(index, txt.length, "Index outside of bounds");
@@ -34,7 +34,7 @@ struct RuleStringLiteral
 
     mixin lex_correct!();
     
-    static auto lex(string txt, size_t index, string name = "")()
+    static lex_return lex(string txt, size_t index, string name = "?")()
     {
         static if (index >= txt.length)
             return lex_failure(index, txt.length, "Index outside of bounds");
@@ -68,7 +68,7 @@ struct RuleCharLiteral
 
     mixin lex_correct!();
     
-    static auto lex(string txt, size_t index, string name = "")()
+    static lex_return lex(string txt, size_t index, string name = "?")()
     {
         static if (index >= txt.length)
             return lex_failure(index, txt.length, "Index outside of bounds");
@@ -102,7 +102,7 @@ struct RuleInt
 
     mixin lex_correct!();
     
-    static auto lex(string txt, size_t index, string name = "")()
+    static lex_return lex(string txt, size_t index, string name = "?")()
     {
         static if (index >= txt.length)
             return lex_failure(index, txt.length, "Index outside of bounds");

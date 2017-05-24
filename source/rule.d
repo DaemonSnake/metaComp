@@ -31,9 +31,9 @@ struct Rule(InArgs...)
     Tuple!(staticMap!(named_members, Filter!(is_named, args))) _members;
     alias _members this;
 
-    static auto lex(string txt, size_t _index, string name = "")()
+    static lex_return lex(string txt, size_t _index, string name = "?")()
     {
-        auto iterator(size_t index = skip_separator(txt, _index), size_t I = 0, Rule value = Rule())()
+        lex_return iterator(size_t index = skip_separator(txt, _index), size_t I = 0, Rule value = Rule())()
         {
             static if (I >= args.length)
                 return lex_succes(_index, index, value);
