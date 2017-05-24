@@ -67,7 +67,7 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
             {
                 enum res = separator.lex!(txt, _i);
                 static if (!res.state)
-                    return end_return(min(res.end, txt.length));
+                    return end_return(min(_i, txt.length));
                 else
                     return main_it!(skip_separator(txt, res.end));
             }
@@ -89,7 +89,7 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
                          "To many number of " ~ type_repr!Type ~
                          "!\nExpected under " ~ Limit.to!string ~
                          " repetitions and instead received " ~
-                         result[0].length.to!string);            
+                         result[0].length.to!string);
         else
             return lex_succes(index, result[1], result[0]); 
     }

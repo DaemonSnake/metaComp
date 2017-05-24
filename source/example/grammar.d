@@ -21,11 +21,15 @@ struct rule_body
 struct rule_element
 {
     alias type =
-        RuleOr!('|',
-                Rule!(named!("type",
-                             RuleOr!(RuleId, RuleCharLiteral, RuleStringLiteral, RuleInt, rule_body)),
-                      named!("name", Optional!(Rule!(':', named!("name", RuleId))))
-                      ));
+        RulePlus!(Rule!(named!("type",
+                               RuleOr!(RuleId,
+                                       RuleCharLiteral,
+                                       RuleStringLiteral,
+                                       RuleInt,
+                                       rule_body)
+                               ),
+                        named!("name", Optional!(Rule!(':', named!("name", RuleId))))),
+                  '|');
     
     type _member;
     alias _member this;

@@ -18,7 +18,7 @@ size_t skip_separator(string txt, size_t index)
     foreach (size_t i; index..txt.length)
         if (!isWhite(txt[i]))
             return i;
-    return txt.length+1;
+    return txt.length;
 }
 
 alias named_members(T) = AliasSeq!(T.type, T.name);

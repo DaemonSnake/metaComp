@@ -88,8 +88,6 @@ struct RuleCharLiteral
             ret.repr = txt[index..i];
             if (index != i)
                 ret.value = txt[index+1..i-1];
-            else
-                ret.value = "";
             return lex_succes(index, i, ret);
         }
     }
