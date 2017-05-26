@@ -1,6 +1,8 @@
 import std.ascii : isAlphaNum;
 import std.meta;
 import std.algorithm : min;
+import std.conv : to;
+
 import tools;
 
 alias isId = (c) => isAlphaNum(c) || c == '_';
@@ -43,7 +45,8 @@ struct ruleValue(char Value)
         static if (index >= txt.length)
             return lex_failure(index, index, "EOF while expecting : " ~ Value);
         else static if (txt[index] != Value)
-            return lex_failure(index, index+1, "Excepted '" ~ Value ~ "', instead got: '" ~ txt[index] ~ "'");
+            return lex_failure(index, index+1, "Excepted '" ~ Value ~ "' (" ~
+                               index.to!string ~"), instead got: '" ~ txt[index] ~ "'");
         else
             return lex_succes(index, index+1, Value);
     }
