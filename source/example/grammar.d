@@ -22,11 +22,11 @@ struct rule_element
 {
     alias type =
         RulePlus!(Rule!(named!("type",
-                               RuleOr!(RuleId,
+                               RuleOr!(rule_body,
+                                       RuleId,
                                        RuleCharLiteral,
                                        RuleStringLiteral,
-                                       RuleInt,
-                                       rule_body)
+                                       RuleInt)
                                ),
                         named!("name", Optional!(Rule!(':', named!("name", RuleId))))),
                   '|');
@@ -37,5 +37,5 @@ struct rule_element
 }
 
 // root = [id:name '=' rule_body:rule]*
-// rule_body = ['[' rule_element*:content ']' ['+' | '?' | '*']?:postfix]
+// rule_body = ['[' [rule_element]+:content ']' ['+' | '?' | '*']?:postfix]
 // rule_element = [ [[id | char_lit | string_lit | number | rule_body]:type [':' id:name]?:name ]+('|') ]

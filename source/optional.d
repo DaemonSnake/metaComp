@@ -26,6 +26,7 @@ struct Optional(Rule)
                 return Rule.lex!(txt, index, name);
         }();
 
+        size_t end = index;
         static if (result.state) {
             ret.found = true;
             ret.value = result.data;
@@ -33,8 +34,9 @@ struct Optional(Rule)
                 ret.repr = result.data;
             else
                 ret.repr = result.data.repr;
+            end = result.end;
         }
-        return lex_succes(index, result.end, ret);
+        return lex_succes(index, end, ret);
     }
 }
 

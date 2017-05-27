@@ -4,11 +4,17 @@ Pour signaler que l'on souhaite pour acceder à l'arbre on utilisera:
 Un règle sera déclaré comme il suit:
         rule!("hello", named!("Or", ruleOr!(id, number)))
 
-rule doit contenir une method templeté "parse" comme il suit:
-        auto parse(string txt, size_t index)();
+rule doit contenir une method templeté "lex" comme il suit:
+        lex_return lex(string txt, size_t index, string name = "?")();
 
 En erreur elle devra renvoyer:
-        tuple(false, index, indexErreur, MSG)
+        lex_error(begin, indexErreur, MSG)
 
 Sinon:
-        tuple(true, new_index, value)
+        lex_success(begin, end, value)
+
+La grammaire sera la suivante:
+
+root = [id:name '=' rule_body:rule]*
+rule_body = ['[' [rule_element]+:content ']' ['+' | '?' | '*']?:postfix]
+rule_element = [ [[id | char_lit | string_lit | number | rule_body]:type [':' id:name]?:name ]+('|') ]

@@ -24,6 +24,7 @@ string parser(rule_body.type Node)()
         enum holder = ["RulePlus", "Optional", "RuleStar"][(Node.postfix.value.index)];
     else
         enum holder = "Rule";
+    
     string iterator(size_t I = 0)()
     {
         enum res = parser!((Node.content[I]))();
@@ -32,6 +33,7 @@ string parser(rule_body.type Node)()
         else
             return res;
     }
+    
     static if (Node.content.values.length > 0)
         enum content = iterator();
     else
@@ -45,15 +47,23 @@ string parser(rule_element Node)()
     {
         string res;
         static if (node.name.found)
-            res ~= "named!(" ~ node.name.value.name.repr ~ ", ";
+            res ~= "named!(\"" ~ node.name.value.name.repr ~ "\", ";
 
-        static if (node.type.index != 4)
-            res ~= or_value!((node.type)).repr;
+        static if (node.type.index == 0) //rule_body
+            res ~= parser!((or_value!((node.type))));
+        else
+        {
+            const string *p = (node.type.repr in ["id": "RuleId",
+                                            "int": "RuleInt",
+                                            "char": "RuleCharLiteral",
+                                            "string": "RuleStringLiteral"]);
+            res ~= (p ? *p : node.type.repr);
+        }
         
         static if (node.name.found)
             res ~= ')';
 
-        static if (!iterate || I+1 < Node.length)
+        static if (!iterate || I+1 >= Node.length)
             return res;
         else
             return res ~ ", " ~ eval!(I+1, true);
