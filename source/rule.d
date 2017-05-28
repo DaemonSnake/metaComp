@@ -1,5 +1,5 @@
 public import named_rule;
-public import optional;
+public import rule_opt;
 public import rule_or;
 public import rule_value;
 public import rule_builtins;

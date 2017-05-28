@@ -2,7 +2,7 @@ import rule_value : correctArgs, is_rule_value;
 import named_rule : is_named, named;
 import rule : Rule;
 import type_repr;
-import optional : is_optional, Optional;
+import rule_opt : is_optional, Optional;
 import rule_builtins;
 import tools;
 
