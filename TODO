@@ -1,0 +1,2 @@
+- Add separators in grammar for '+' and '*' (Ex: rule+('|'))
+- Add '+Number' in grammar (Ex: rule+5)
