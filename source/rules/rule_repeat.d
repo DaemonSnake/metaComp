@@ -3,6 +3,7 @@ module rules.rule_repeat;
 import rules.rule_value : RuleValue, is_rule_value, correctArg;
 import rules.rule_named : is_named;
 import rules.rule_opt : is_rule_opt;
+// import rules.rule : is_rule;
 
 import type_repr : type_repr;
 import tools;
@@ -15,15 +16,13 @@ import std.meta : staticMap, aliasSeqOf;
 import std.traits : Select;
 import std.string : replace;
 
-alias RuleStar(T, Separator...) = RuleRepeat!(T, 0, -1, Separator);
-alias RuleStar(alias T, Separator...) = RuleRepeat!(T, 0, -1, Separator);
-alias RulePlus(alias T, Separator...) = RuleRepeat!(T, 1, -1, Separator);
-alias RulePlus(T, Separator...) = RuleRepeat!(T, 1, -1, Separator);
+alias RuleStar(T, Separator...) = RuleRepeat!(T, 0, Separator);
+alias RuleStar(alias T, Separator...) = RuleRepeat!(T, 0, Separator);
+alias RulePlus(alias T, Separator...) = RuleRepeat!(T, 1, Separator);
+alias RulePlus(T, Separator...) = RuleRepeat!(T, 1, Separator);
+alias RuleRepeat(alias T, Separator...) = RuleRepeat!(RuleValue!T, Min, Separator);
 
-alias RuleRepeat(alias T, size_t Min = 0, size_t Limit = -1, Separator...) =
-    RuleRepeat!(RuleValue!T, Min, Limit, Separator);
-
-struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
+struct RuleRepeat(Type, size_t Min = 0, Separator...)
 {
     static assert(!is_named!Type, "Repeat rule doesn't allow named arguments!");
     static assert(!is_rule_opt!Type, "Repeat rule doesn't allow rule_opt arguments");
@@ -33,18 +32,18 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
 
     static string build_grammar_repr()
     {
-        string repr = Type.grammar_repr;
+        string repr = "[" ~ Type.grammar_repr ~ "]";
 
-        static if (Min == 0 && Limit == -1)
+        static if (Min == 0)
             repr ~= "*";
-        else if (Min == 1 && Limit == -1)
+        else if (Min == 1)
             repr ~= "+";
         static if (Separator.length == 1)
             repr ~= "(" ~ separator.grammar_repr ~ ")";
         return repr;
     }
 
-    enum grammar_repr = Type.grammar_repr;
+    enum grammar_repr = build_grammar_repr();
 
     static if (Separator.length == 1)
     {
@@ -110,12 +109,6 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
                          " repetitions and instead received " ~
                                result[0].length.to!string ~ '\n' ~ result[2].replace("\n", "\n\t\t"));
         }
-        else static if (result[0].length >= Limit)
-            return lex_failure(index, result[1],
-                         "To many number of " ~ type_repr!Type ~
-                         "!\n\tExpected under " ~ Limit.to!string ~
-                         " repetitions and instead received " ~
-                               result[0].length.to!string ~ '\n' ~ result[2].replace("\n", "\n\t\t"));
         else
             return lex_succes(index, result[1], result[0]);
     }

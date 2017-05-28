@@ -1,6 +1,5 @@
 module grammar.grammar;
-public import rules.rule;
-public import tools;
+public import metaComp;
 
 struct root
 {

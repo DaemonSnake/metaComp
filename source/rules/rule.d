@@ -1,19 +1,18 @@
 module rules.rule;
 
-public import rules.rule_named;
-public import rules.rule_opt;
-public import rules.rule_or;
-public import rules.rule_value;
-public import rules.rule_builtins;
-public import rules.rule_repeat;
-public import tools;
+import rules.rule_named : is_named;
+import rules.rule_value : correctArgs;
+import tools;
 
 import std.typecons : Tuple;
 import std.conv : to;
 import std.meta : staticMap, Filter, AliasSeq;
 import std.algorithm : min, joiner;
+import std.traits : isType;
 
-alias named_members(T) = AliasSeq!(T.type, T.name);
+private alias named_members(T) = AliasSeq!(T.type, T.name);
+
+mixin is_template!(Rule, "rule");
 
 template Rule(InArgs...)
 {
