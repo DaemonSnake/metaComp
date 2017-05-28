@@ -1,5 +1,5 @@
-module example.parser;
-public import example.grammar;
+module grammar.parser;
+public import grammar.grammar;
 
 string parser(root.type Node)()
 {

@@ -1,6 +1,6 @@
 import std.meta;
 import std.traits;
-import example.parser;
+import grammar.parser;
 
 void main()
 {

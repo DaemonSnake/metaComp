@@ -1,4 +1,4 @@
-module example.grammar;
+module grammar.grammar;
 public import rule;
 public import tools;
 
