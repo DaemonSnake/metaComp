@@ -1,4 +1,4 @@
-import named_rule : is_named;
+import rule_named : is_named;
 import rule_value : correctArg, ruleValue, is_rule_value;
 import tools;
 

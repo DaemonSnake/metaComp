@@ -1,5 +1,5 @@
 import rule_value : ruleValue, is_rule_value, correctArg;
-import named_rule : is_named;
+import rule_named : is_named;
 import type_repr : type_repr;
 import rule_opt : is_optional;
 import rule : skip_separator;

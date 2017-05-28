@@ -1,4 +1,4 @@
-public import named_rule;
+public import rule_named;
 public import rule_opt;
 public import rule_or;
 public import rule_value;
