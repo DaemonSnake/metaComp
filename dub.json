@@ -1,10 +1,10 @@
 {
     "name": "metacomp",
     "authors": [
-	"penava_b"
+	"bastien penavayre"
     ],
-    "description": "A minimal D application.",
-    "copyright": "Copyright © 2017, penava_b",
+    "description": "A compile-time compiler",
+    "copyright": "Copyright © 2017, Bastien Penavayre, bastien.penavayre@epitech.eu",
     "license": "proprietary",
     "dflags-dmd": ["-J."]
 }

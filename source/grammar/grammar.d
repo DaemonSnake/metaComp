@@ -1,17 +1,16 @@
 module grammar.grammar;
 public import metaComp;
+import tools;
 
 struct root
 {
+    mixin build_lexer!();
     alias type = RulePlus!(Rule!(named!("name", RuleId), '=', named!("rule", rule_body)));
-    type _member;
-    alias _member this;
-    alias lex = type.lex;
-    enum grammar_repr = "root";
 }
 
 struct rule_body
 {
+    mixin build_lexer!();
     alias separator = named!("separator", RuleOpt!(Rule!('(', named!("separator", rule_element), ')')));
     alias plus = Rule!('+', RuleOpt!(RuleInt), separator);
     alias star = Rule!('*', separator);
@@ -20,14 +19,11 @@ struct rule_body
                        ']',
                        named!("postfix", RuleOpt!(RuleOr!(plus, '?', star))));
 
-    type _member;
-    alias _member this;
-    alias lex = type.lex;
-    enum grammar_repr = "rule_body";
 }
 
 struct rule_element
 {
+    mixin build_lexer!();
     alias type =
         RulePlus!(Rule!(named!("type",
                                RuleOr!(rule_body,
@@ -38,11 +34,6 @@ struct rule_element
                                ),
                         named!("name", RuleOpt!(Rule!(':', named!("name", RuleId))))),
                   '|');
-    
-    type _member;
-    alias _member this;
-    alias lex = type.lex;
-    enum grammar_repr = "rule_element";
 }
 
 // root = [id:name '=' rule_body:rule]*

@@ -1,7 +1,7 @@
 module grammar.parser;
 public import grammar.grammar;
 
-string parser(root.type Node)()
+string parser(root Node)()
 {
     string iterator(size_t I = 0)()
     {
@@ -18,7 +18,7 @@ string parser(root.type Node)()
         return "";
 }
 
-string parser(rule_body.type Node)()
+string parser(rule_body Node)()
 {
     static if (Node.postfix.found)
         enum holder = ["RulePlus", "RuleOpt", "RuleStar"][(Node.postfix.value.index)];
@@ -35,9 +35,13 @@ string parser(rule_body.type Node)()
     }
 
     enum content = iterator();
-    // static if (Node.postfix.found && Node.postfix.value.index != 1 &&
-    //            or_value!((Node.postfix.value)).separator.found) //Not ? && (...) found
-    return holder ~ "!(" ~ content ~ ")";
+    static if (Node.postfix.found && Node.postfix.value.index != 1 &&
+               or_value!((Node.postfix.value)).separator.found) //Not ? && (...) found
+        enum separator = ", " ~
+            parser!((or_value!((Node.postfix.value)).separator.value.separator));
+    else
+        enum separator = "";
+    return holder ~ "!(" ~ content ~ separator ~ ")";
 }
 
 string parser(rule_element Node)()
