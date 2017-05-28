@@ -16,5 +16,4 @@ void main()
     pragma(msg, root.type.grammar_repr);
     pragma(msg, rule_body.type.grammar_repr);
     pragma(msg, rule_element.type.grammar_repr);
-
 }
