@@ -3,6 +3,7 @@ module rules.rule_repeat;
 import rules.rule_value : RuleValue, is_rule_value, correctArg;
 import rules.rule_named : is_named;
 import rules.rule_opt : is_rule_opt;
+import rules.rule : is_rule;
 
 import tools;
 
@@ -12,7 +13,7 @@ import std.range : iota;
 import std.conv : to;
 import std.meta : staticMap, aliasSeqOf;
 import std.traits : Select;
-import std.string : replace, indexOf;
+import std.string : replace;
 
 alias RuleStar(T, Separator...) = RuleRepeat!(T, 0, Separator);
 alias RuleStar(alias T, Separator...) = RuleRepeat!(T, 0, Separator);
@@ -30,8 +31,7 @@ struct RuleRepeat(Type, size_t Min = 0, Separator...)
 
     static string build_grammar_repr()
     {
-        enum end = Type.stringof.indexOf('!');
-        static if (end != -1 && Type.stringof[0..end] == "_Rule")
+        static if (is_rule!(Type))
             string repr = Type.grammar_repr;
         else
             string repr = "[" ~ Type.grammar_repr ~ "]";
@@ -80,16 +80,13 @@ struct RuleRepeat(Type, size_t Min = 0, Separator...)
             {
                 enum lex_res = Type.lex!(txt, i, name);
 
-                static if (lex_res.state)
-                {
-                    static if (is_rule_value!Type)
-                        return iterator!(skip_separator(txt, lex_res.end), true);
-                    else
-                        return iterator!(skip_separator(txt, lex_res.end), true, Values,
-                                         cast(Type)lex_res.data);
-                }
-                else
+                static if (!lex_res.state)
                     return end_return(min(i, txt.length), lex_res.msg);
+                else static if (is_rule_value!Type)
+                    return iterator!(skip_separator(txt, lex_res.end), true);
+                else
+                    return iterator!(skip_separator(txt, lex_res.end), true, Values,
+                                     cast(Type)lex_res.data);
             }
 
             static if (Separator.length == 1 && started)

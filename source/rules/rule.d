@@ -12,7 +12,8 @@ import std.traits : isType;
 
 private alias named_members(T) = AliasSeq!(T.type, T.name);
 
-mixin is_template!(Rule, "rule");
+enum is_rule(T) = is_hidden_template!(T, "_Rule");
+enum is_rule(alias T) = false;
 
 template Rule(InArgs...)
 {
