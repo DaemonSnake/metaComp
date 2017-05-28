@@ -6,10 +6,10 @@ import std.conv : to;
 import tools;
 
 alias isId = (c) => isAlphaNum(c) || c == '_';
-enum is_rule_value(T) = isInstanceOf!(ruleValue, T);
+enum is_rule_value(T) = isInstanceOf!(RuleValue, T);
 enum is_rule_value(alias T) = false;
 
-struct ruleValue(string repr)
+struct RuleValue(string repr)
 {
     mixin lex_correct!();
     
@@ -36,7 +36,7 @@ struct ruleValue(string repr)
     }
 }
 
-struct ruleValue(char Value)
+struct RuleValue(char Value)
 {
     mixin lex_correct!();
     
@@ -58,7 +58,7 @@ private template replaceValueWithType(alias T)
 {
     static assert(!__traits(isTemplate, T),
                   "Only values are allowed as alias arguments: " ~ T.stringof);
-    alias replaceValueWithType = ruleValue!T;
+    alias replaceValueWithType = RuleValue!T;
 }
 
 alias correctArgs(Args...) = staticMap!(replaceValueWithType, Args);

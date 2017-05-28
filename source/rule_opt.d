@@ -1,5 +1,5 @@
 import rule_named : is_named;
-import rule_value : correctArg, ruleValue, is_rule_value;
+import rule_value : correctArg, RuleValue, is_rule_value;
 import tools;
 
 import std.traits;

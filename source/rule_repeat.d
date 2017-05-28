@@ -1,4 +1,4 @@
-import rule_value : ruleValue, is_rule_value, correctArg;
+import rule_value : RuleValue, is_rule_value, correctArg;
 import rule_named : is_named;
 import type_repr : type_repr;
 import rule_opt : is_optional;
@@ -97,7 +97,7 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
 }
 
 alias RuleRepeat(alias T, size_t Min = 0, size_t Limit = -1, Separator...) =
-    RuleRepeat!(ruleValue!T, Min, Limit, Separator);
+    RuleRepeat!(RuleValue!T, Min, Limit, Separator);
 
 alias RuleStar(T, Separator...) = RuleRepeat!(T, 0, -1, Separator);
 alias RuleStar(alias T, Separator...) = RuleRepeat!(T, 0, -1, Separator);
