@@ -1,7 +1,7 @@
 import rule_value : RuleValue, is_rule_value, correctArg;
 import rule_named : is_named;
 import type_repr : type_repr;
-import rule_opt : is_optional;
+import rule_opt : is_rule_opt;
 import rule : skip_separator;
 import tools;
 
@@ -16,7 +16,7 @@ import std.string;
 struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
 {
     static assert(!is_named!Type, "Repeat rule doesn't allow named arguments!");
-    static assert(!is_optional!Type, "Repeat rule doesn't allow optional arguments");
+    static assert(!is_rule_opt!Type, "Repeat rule doesn't allow rule_opt arguments");
     static assert(Separator.length <= 1, "Only one separator allowed for RuleRepeat");
 
     mixin lex_correct!();

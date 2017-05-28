@@ -1,7 +1,3 @@
-public import std.traits : isInstanceOf;
-import std.traits;
-import rule_value : is_rule_value;
-
 void forceAssign(T, V)(ref T value, V _with)
 {
     static if (__traits(compiles, cast(T)_with))
@@ -35,4 +31,11 @@ mixin template lex_correct()
 {
     alias lex_failure = tools.lex_failure!(typeof(this));
     alias lex_return = tools.lex_return!(typeof(this));
+}
+
+mixin template is_template(alias Template, string name)
+{
+    import std.traits : isInstanceOf;
+    mixin("enum is_" ~ name ~ "(alias T) = false;");
+    mixin("enum is_" ~ name ~ "(T) = isInstanceOf!(Template, T);");
 }

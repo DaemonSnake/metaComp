@@ -4,9 +4,9 @@ import tools;
 
 import std.traits;
 
-struct Optional(Rule)
+struct RuleOpt(Rule)
 {
-    static assert(!is_named!Rule, "Named types are illegal in Optional contex: " ~ Rule.stringof);
+    static assert(!is_named!Rule, "Named types are illegal in RuleOpt contex: " ~ Rule.stringof);
     
     bool found;
     static if (!is_rule_value!Rule)
@@ -17,7 +17,7 @@ struct Optional(Rule)
 
     static lex_return!(typeof(this)) lex(string txt, size_t index, string name = "?")()
     {
-        Optional!Rule ret;
+        RuleOpt!Rule ret;
 
         enum result = {
             static if (is_rule_value!Rule)
@@ -40,6 +40,6 @@ struct Optional(Rule)
     }
 }
 
-alias Optional(alias Rule) = Optional!(correctArg!(Rule));
+alias RuleOpt(alias Rule) = RuleOpt!(correctArg!(Rule));
 
-enum is_optional(T) = isInstanceOf!(Optional, T);
+mixin is_template!(RuleOpt, "rule_opt");

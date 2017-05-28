@@ -1,8 +1,6 @@
 import tools;
-import std.traits;
 
-enum is_named(T) = isInstanceOf!(named, T);
-enum is_named(alias V) = false;
+mixin is_template!(named, "named");
 
 struct named(string _name, _type)
 {

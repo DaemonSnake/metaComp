@@ -21,7 +21,7 @@ string parser(root.type Node)()
 string parser(rule_body.type Node)()
 {
     static if (Node.postfix.found)
-        enum holder = ["RulePlus", "Optional", "RuleStar"][(Node.postfix.value.index)];
+        enum holder = ["RulePlus", "RuleOpt", "RuleStar"][(Node.postfix.value.index)];
     else
         enum holder = "Rule";
     

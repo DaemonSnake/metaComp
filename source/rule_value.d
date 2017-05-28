@@ -6,8 +6,7 @@ import std.conv : to;
 import tools;
 
 alias isId = (c) => isAlphaNum(c) || c == '_';
-enum is_rule_value(T) = isInstanceOf!(RuleValue, T);
-enum is_rule_value(alias T) = false;
+mixin is_template!(RuleValue, "rule_value");
 
 struct RuleValue(string repr)
 {

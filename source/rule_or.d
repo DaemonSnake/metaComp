@@ -2,7 +2,7 @@ import rule_value : correctArgs, is_rule_value;
 import rule_named : is_named, named;
 import rule : Rule;
 import type_repr;
-import rule_opt : is_optional, Optional;
+import rule_opt : is_rule_opt, RuleOpt;
 import rule_builtins;
 import tools;
 
@@ -20,7 +20,7 @@ template RuleOr(Rules...)
     {
         static assert(rules.length > 1, "Or rule doesn't allow less that 2 arguments!");
         static assert(!anySatisfy!(is_named, rules), "Or rule doesn't allow named arguments!");
-        static assert(!anySatisfy!(is_optional, rules), "Or rule doesn't allow optional arguments");
+        static assert(!anySatisfy!(is_rule_opt, rules), "Or rule doesn't allow rule_opt arguments");
 
         mixin lex_correct!();
 
