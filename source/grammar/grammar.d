@@ -1,5 +1,5 @@
 module grammar.grammar;
-public import rule;
+public import rules.rule;
 public import tools;
 
 struct root

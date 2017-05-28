@@ -1,8 +1,10 @@
-import rule_value : RuleValue, is_rule_value, correctArg;
-import rule_named : is_named;
+module rules.rule_repeat;
+
+import rules.rule_value : RuleValue, is_rule_value, correctArg;
+import rules.rule_named : is_named;
+import rules.rule_opt : is_rule_opt;
+
 import type_repr : type_repr;
-import rule_opt : is_rule_opt;
-import rule : skip_separator;
 import tools;
 
 import std.typecons : tuple, Tuple;
@@ -11,7 +13,15 @@ import std.range : iota;
 import std.conv : to;
 import std.meta : staticMap, aliasSeqOf;
 import std.traits : Select;
-import std.string;
+import std.string : replace;
+
+alias RuleStar(T, Separator...) = RuleRepeat!(T, 0, -1, Separator);
+alias RuleStar(alias T, Separator...) = RuleRepeat!(T, 0, -1, Separator);
+alias RulePlus(alias T, Separator...) = RuleRepeat!(T, 1, -1, Separator);
+alias RulePlus(T, Separator...) = RuleRepeat!(T, 1, -1, Separator);
+
+alias RuleRepeat(alias T, size_t Min = 0, size_t Limit = -1, Separator...) =
+    RuleRepeat!(RuleValue!T, Min, Limit, Separator);
 
 struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
 {
@@ -95,11 +105,3 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
             return lex_succes(index, result[1], result[0]);
     }
 }
-
-alias RuleRepeat(alias T, size_t Min = 0, size_t Limit = -1, Separator...) =
-    RuleRepeat!(RuleValue!T, Min, Limit, Separator);
-
-alias RuleStar(T, Separator...) = RuleRepeat!(T, 0, -1, Separator);
-alias RuleStar(alias T, Separator...) = RuleRepeat!(T, 0, -1, Separator);
-alias RulePlus(alias T, Separator...) = RuleRepeat!(T, 1, -1, Separator);
-alias RulePlus(T, Separator...) = RuleRepeat!(T, 1, -1, Separator);

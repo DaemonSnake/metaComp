@@ -1,9 +1,11 @@
-public import rule_named;
-public import rule_opt;
-public import rule_or;
-public import rule_value;
-public import rule_builtins;
-public import rule_repeat;
+module rules.rule;
+
+public import rules.rule_named;
+public import rules.rule_opt;
+public import rules.rule_or;
+public import rules.rule_value;
+public import rules.rule_builtins;
+public import rules.rule_repeat;
 public import tools;
 
 import std.typecons;
@@ -12,14 +14,6 @@ import std.meta;
 import std.traits;
 import std.ascii;
 import std.algorithm : min;
-
-size_t skip_separator(string txt, size_t index)
-{
-    foreach (size_t i; index..txt.length)
-        if (!isWhite(txt[i]))
-            return i;
-    return txt.length;
-}
 
 alias named_members(T) = AliasSeq!(T.type, T.name);
 

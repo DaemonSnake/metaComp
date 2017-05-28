@@ -1,10 +1,12 @@
-import rule_value : correctArgs, is_rule_value;
-import rule_named : is_named, named;
-import rule : Rule;
-import type_repr;
-import rule_opt : is_rule_opt, RuleOpt;
-import rule_builtins;
+module rules.rule_or;
+
+import rules.rule_value : correctArgs, is_rule_value;
+import rules.rule_named : is_named, named;
+import rules.rule : Rule;
+import rules.rule_opt : is_rule_opt, RuleOpt;
+import rules.rule_builtins;
 import tools;
+import type_repr;
 
 import std.typecons : Tuple;
 import std.meta : anySatisfy, aliasSeqOf, staticMap, AliasSeq;

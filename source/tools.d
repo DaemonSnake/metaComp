@@ -4,6 +4,16 @@ void forceAssign(T, V)(ref T value, V _with)
         value = cast(T)_with;
 }
 
+size_t skip_separator(string txt, size_t index)
+{
+    import std.ascii : isWhite;
+    
+    foreach (size_t i; index..txt.length)
+        if (!isWhite(txt[i]))
+            return i;
+    return txt.length;
+}
+
 struct lex_return(T)
 {
     bool state;

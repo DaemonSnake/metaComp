@@ -1,3 +1,5 @@
+module rules.rule_named;
+
 import tools;
 
 mixin is_template!(named, "named");

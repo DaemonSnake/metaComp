@@ -1,3 +1,5 @@
+module rules.rule_builtins;
+
 import std.ascii : isAlphaNum, isAlpha;
 import std.conv : to;
 import std.algorithm : min;
