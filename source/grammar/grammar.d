@@ -12,7 +12,11 @@ struct root
 
 struct rule_body
 {
-    alias type = Rule!('[', named!("content", RulePlus!rule_element), ']', named!("postfix", RuleOpt!(RuleOr!('+', '?', '*'))));
+    alias type = Rule!('[',
+                       named!("content", RulePlus!rule_element),
+                       ']',
+                       named!("postfix", RuleOpt!(RuleOr!('+', '?', '*'))));
+
     type _member;
     alias _member this;
     alias lex = type.lex;
