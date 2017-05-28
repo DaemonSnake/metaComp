@@ -11,6 +11,8 @@ struct named(string _name, _type)
         alias type = _type.type;
     else
         alias type = _type;
+
+    enum grammar_repr = _type.grammar_repr ~ ":" ~ _name;
     
     static lex_return!(type) lex(string txt, size_t index)() {
         return type.lex!(txt, index, _name);

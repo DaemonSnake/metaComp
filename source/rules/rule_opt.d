@@ -17,6 +17,8 @@ struct RuleOpt(Rule)
         typeof((TemplateArgsOf!Rule)[0]) value;
     string repr;
 
+    enum grammar_repr = Rule.grammar_repr ~ '?';
+
     static lex_return!(typeof(this)) lex(string txt, size_t index, string name = "?")()
     {
         RuleOpt!Rule ret;

@@ -8,6 +8,7 @@ struct root
     type _member;
     alias _member this;
     alias lex = type.lex;
+    enum grammar_repr = "root";
 }
 
 struct rule_body
@@ -16,6 +17,7 @@ struct rule_body
     type _member;
     alias _member this;
     alias lex = type.lex;
+    enum grammar_repr = "rule_body";
 }
 
 struct rule_element
@@ -34,6 +36,7 @@ struct rule_element
     type _member;
     alias _member this;
     alias lex = type.lex;
+    enum grammar_repr = "rule_element";
 }
 
 // root = [id:name '=' rule_body:rule]*

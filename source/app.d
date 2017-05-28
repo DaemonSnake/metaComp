@@ -13,4 +13,8 @@ void main()
     }
     proccess!("root = [id:name '=' rule_body:rule]*");
     proccess!("rule_body = ['[' [rule_element]+:content ']' ['+' | '?' | '*']?:postfix]");
+    pragma(msg, root.type.grammar_repr);
+    pragma(msg, rule_body.type.grammar_repr);
+    pragma(msg, rule_element.type.grammar_repr);
+
 }

@@ -8,25 +8,25 @@ public import rules.rule_builtins;
 public import rules.rule_repeat;
 public import tools;
 
-import std.typecons;
-import std.conv;
-import std.meta;
-import std.traits;
-import std.ascii;
-import std.algorithm : min;
+import std.typecons : Tuple;
+import std.conv : to;
+import std.meta : staticMap, Filter, AliasSeq;
+import std.algorithm : min, joiner;
 
 alias named_members(T) = AliasSeq!(T.type, T.name);
 
 template Rule(InArgs...)
 {
-    alias args = correctArgs!InArgs;
+    alias Rule = _Rule!(correctArgs!InArgs);
 
-    struct Rule
+    struct _Rule(args...)
     {
         mixin lex_correct!();
+        alias _members this;
+        enum grammar_repr = "[" ~ [staticMap!(get_grammar_repr, args)].joiner(" ").to!string ~ "]";
+
         string repr;
         Tuple!(staticMap!(named_members, Filter!(is_named, args))) _members;
-        alias _members this;
 
         static lex_return lex(string txt, size_t _index, string name = "?")()
         {

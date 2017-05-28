@@ -6,7 +6,6 @@ import rules.rule : Rule;
 import rules.rule_opt : is_rule_opt, RuleOpt;
 import rules.rule_builtins;
 import tools;
-import type_repr;
 
 import std.typecons : Tuple;
 import std.meta : anySatisfy, aliasSeqOf, staticMap, AliasSeq;
@@ -14,17 +13,26 @@ import std.range : iota;
 import std.algorithm : joiner, min;
 import std.conv : to;
 
+template or_value(alias Value)
+{
+    static if (__traits(hasMember, Value, "member_" ~ Value.index.to!string))
+        enum or_value = __traits(getMember, Value, "member_" ~ Value.index.to!string);
+    else
+        enum or_value = Value.repr;
+}
+
 template RuleOr(Rules...)
 {
-    alias rules = correctArgs!Rules;
+    alias RuleOr = _RuleOr!(correctArgs!Rules);
 
-    struct RuleOr
+    struct _RuleOr(rules...)
     {
         static assert(rules.length > 1, "Or rule doesn't allow less that 2 arguments!");
         static assert(!anySatisfy!(is_named, rules), "Or rule doesn't allow named arguments!");
         static assert(!anySatisfy!(is_rule_opt, rules), "Or rule doesn't allow rule_opt arguments");
 
         mixin lex_correct!();
+        enum grammar_repr = "[" ~ [staticMap!(get_grammar_repr, rules)].joiner(" | ").to!string ~ "]";
 
         template union_member(size_t I)
         {
@@ -71,28 +79,5 @@ template RuleOr(Rules...)
             }
             return iterator();
         }
-    }
-}
-
-template or_value(alias Value)
-{
-    static if (__traits(hasMember, Value, "member_" ~ Value.index.to!string))
-        enum or_value = __traits(getMember, Value, "member_" ~ Value.index.to!string);
-    else
-        enum or_value = Value.repr;
-}
-
-string apply(alias Func, Ret = string, T)(T value)
-    if (isInstanceOf!(_RuleOr, T))
-{
-    import std.traits : TemplateArgsOf;
-
-    enum case_str(size_t I) = "case " ~ I.to!string ~ ": return Func(value.member_" ~ I.to!string ~ ");";
-        
-    switch(value.index)
-    {
-        mixin([staticMap!(case_str, aliasSeqOf!(iota(0, (TemplateArgsOf!T).length)))].joiner("").to!string);
-    default:
-        return Ret.init;
     }
 }

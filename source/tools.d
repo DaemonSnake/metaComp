@@ -14,6 +14,8 @@ size_t skip_separator(string txt, size_t index)
     return txt.length;
 }
 
+enum get_grammar_repr(T) = T.grammar_repr;
+
 struct lex_return(T)
 {
     bool state;

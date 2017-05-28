@@ -10,6 +10,7 @@ struct RuleId
     string repr;
 
     mixin lex_correct!();
+    enum grammar_repr = "id";
     
     static lex_return lex(string txt, size_t index, string name = "?")()
     {
@@ -35,6 +36,7 @@ struct RuleStringLiteral
     string value;
 
     mixin lex_correct!();
+    enum grammar_repr = "string";
     
     static lex_return lex(string txt, size_t index, string name = "?")()
     {
@@ -69,6 +71,7 @@ struct RuleCharLiteral
     string value;
 
     mixin lex_correct!();
+    enum grammar_repr = "char";
     
     static lex_return lex(string txt, size_t index, string name = "?")()
     {
@@ -101,6 +104,7 @@ struct RuleInt
     long value;
 
     mixin lex_correct!();
+    enum grammar_repr = "int";
     
     static lex_return lex(string txt, size_t index, string name = "?")()
     {

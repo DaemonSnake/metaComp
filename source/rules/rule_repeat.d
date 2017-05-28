@@ -31,6 +31,21 @@ struct RuleRepeat(Type, size_t Min = 0, size_t Limit = -1, Separator...)
 
     mixin lex_correct!();
 
+    static string build_grammar_repr()
+    {
+        string repr = Type.grammar_repr;
+
+        static if (Min == 0 && Limit == -1)
+            repr ~= "*";
+        else if (Min == 1 && Limit == -1)
+            repr ~= "+";
+        static if (Separator.length == 1)
+            repr ~= "(" ~ separator.grammar_repr ~ ")";
+        return repr;
+    }
+
+    enum grammar_repr = Type.grammar_repr;
+
     static if (Separator.length == 1)
     {
         alias separator = correctArg!(Separator[0]);

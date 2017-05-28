@@ -13,6 +13,7 @@ mixin is_template!(RuleValue, "rule_value");
 struct RuleValue(string repr)
 {
     mixin lex_correct!();
+    enum grammar_repr = "\"" ~ repr ~ '"';
     
     static auto lex(string txt, size_t index, string name = "?")()
     {
@@ -40,6 +41,7 @@ struct RuleValue(string repr)
 struct RuleValue(char Value)
 {
     mixin lex_correct!();
+    enum grammar_repr = "'" ~ Value ~ "'";
     
     static auto lex(string txt, size_t index, string name = "?")()
     {
