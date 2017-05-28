@@ -33,11 +33,10 @@ string parser(rule_body.type Node)()
         else
             return res;
     }
-    
-    static if (Node.content.values.length > 0)
-        enum content = iterator();
-    else
-        enum content = "";
+
+    enum content = iterator();
+    // static if (Node.postfix.found && Node.postfix.value.index != 1 &&
+    //            or_value!((Node.postfix.value)).separator.found) //Not ? && (...) found
     return holder ~ "!(" ~ content ~ ")";
 }
 

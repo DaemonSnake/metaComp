@@ -2,6 +2,7 @@ module rules.rule_opt;
 
 import rules.rule_named : is_named;
 import rules.rule_value : correctArg, RuleValue, is_rule_value;
+import rules.rule : is_rule;
 import tools;
 
 import std.traits;
@@ -17,7 +18,10 @@ struct RuleOpt(Rule)
         typeof((TemplateArgsOf!Rule)[0]) value;
     string repr;
 
-    enum grammar_repr = Rule.grammar_repr ~ '?';
+    static if (is_rule!(Rule))
+        enum grammar_repr = Rule.grammar_repr;
+    else
+        enum grammar_repr = "[" ~ Rule.grammar_repr ~ "]?";
 
     static lex_return!(typeof(this)) lex(string txt, size_t index, string name = "?")()
     {

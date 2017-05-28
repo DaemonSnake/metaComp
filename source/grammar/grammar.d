@@ -12,10 +12,13 @@ struct root
 
 struct rule_body
 {
+    alias separator = named!("separator", RuleOpt!(Rule!('(', named!("separator", rule_element), ')')));
+    alias plus = Rule!('+', RuleOpt!(RuleInt), separator);
+    alias star = Rule!('*', separator);
     alias type = Rule!('[',
                        named!("content", RulePlus!rule_element),
                        ']',
-                       named!("postfix", RuleOpt!(RuleOr!('+', '?', '*'))));
+                       named!("postfix", RuleOpt!(RuleOr!(plus, '?', star))));
 
     type _member;
     alias _member this;
