@@ -1,6 +1,5 @@
 module grammar.grammar;
 public import metaComp;
-import tools;
 
 struct root
 {

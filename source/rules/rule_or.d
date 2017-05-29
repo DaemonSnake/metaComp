@@ -61,7 +61,7 @@ template RuleOr(Rules...)
                             tmp.repr = txt[index..min(result.end, txt.length)];
                             tmp.index = I;
                             static if (!is_rule_value!(rules[I]))
-                                __traits(getMember, tmp, "member_" ~ to!string(I)).forceAssign(result.data);
+                                __traits(getMember, tmp, "member_" ~ to!string(I)) = result.data;
                             return lex_succes(index, result.end, tmp);
                         }();
                 }

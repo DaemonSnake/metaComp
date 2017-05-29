@@ -57,7 +57,7 @@ template Rule(InArgs...)
                         enum v1 = {
                             auto v = value;
                             static if (is_named!(args[I]))
-                                __traits(getMember, v, args[I].name).forceAssign(result.data);
+                                __traits(getMember, v, args[I].name) = result.data;
                             return v;
                         }();
                         enum next = it!(skip_separator(txt, result.end), I+1, v1);

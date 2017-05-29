@@ -6,7 +6,7 @@ string parser(root Node)()
     string iterator(size_t I = 0)()
     {
         enum node = Node[I];
-        enum result = "struct " ~ node.name.repr ~ "\n{\n\talias type = " ~ parser!((node.rule)) ~ ";\n\ttype _member;\n\talias _member this;\n\talias lex = type.lex;\n}";
+        enum result = "struct " ~ node.name.repr ~ "\n{\n\tmixin build_lexer!();\n\talias type = " ~ parser!((node.rule)) ~ ";\n}";
         static if (I+1 < Node.values.length)
             return result ~ iterator!(I+1);
         else

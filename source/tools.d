@@ -1,9 +1,3 @@
-void forceAssign(T, V)(ref T value, V _with)
-{
-    static if (__traits(compiles, cast(T)_with))
-        value = cast(T)_with;
-}
-
 size_t skip_separator(string txt, size_t index)
 {
     import std.ascii : isWhite;
@@ -18,7 +12,7 @@ enum get_grammar_repr(T) = T.grammar_repr;
 
 mixin template build_lexer()
 {
-    import tools : lex_return;
+    import tools : lex_return, lex_succes, lex_failure;
     
     type _member;
     alias _member this;

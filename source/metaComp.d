@@ -5,3 +5,4 @@ public import rules.rule_value;
 public import rules.rule_builtins;
 public import rules.rule_repeat;
 public import rules.rule;
+public import tools : build_lexer;
