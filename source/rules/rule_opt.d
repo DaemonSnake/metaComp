@@ -5,8 +5,6 @@ import rules.rule_value : correctArg, RuleValue, is_rule_value;
 import rules.rule : is_rule;
 import tools;
 
-import std.traits;
-
 struct RuleOpt(Rule)
 {
     static assert(!is_named!Rule, "Named types are illegal in RuleOpt contex: " ~ Rule.stringof);

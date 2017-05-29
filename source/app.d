@@ -1,5 +1,3 @@
-import std.meta;
-import std.traits;
 import grammar.parser;
 
 void main()
