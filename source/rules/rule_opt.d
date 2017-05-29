@@ -23,10 +23,8 @@ struct RuleOpt(Rule)
     else
         enum grammar_repr = "[" ~ Rule.grammar_repr ~ "]?";
 
-    static lex_return!(typeof(this)) lex(string txt, size_t index, string name = "?")()
+    template lex(string txt, size_t index, string name = "?")
     {
-        RuleOpt!Rule ret;
-
         enum result = {
             static if (is_rule_value!Rule)
                 return Rule.lex!(txt, index);
@@ -34,17 +32,20 @@ struct RuleOpt(Rule)
                 return Rule.lex!(txt, index, name);
         }();
 
-        size_t end = index;
-        static if (result.state) {
-            ret.found = true;
-            ret.value = result.data;
-            static if (is_rule_value!Rule)
-                ret.repr = result.data;
-            else
-                ret.repr = result.data.repr;
-            end = result.end;
-        }
-        return lex_succes(index, end, ret);
+        enum lex = {
+            RuleOpt!Rule ret;
+            size_t end = index;
+            static if (result.state) {
+                ret.found = true;
+                ret.value = result.data;
+                static if (is_rule_value!Rule)
+                    ret.repr = result.data;
+                else
+                    ret.repr = result.data.repr;
+                end = result.end;
+            }
+            return lex_succes(index, end, ret);
+        }();
     }
 }
 

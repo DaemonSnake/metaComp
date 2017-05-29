@@ -28,25 +28,25 @@ template Rule(InArgs...)
         string repr;
         Tuple!(staticMap!(named_members, Filter!(is_named, args))) _members;
 
-        static lex_return lex(string txt, size_t _index, string name = "?")()
+        template lex(string txt, size_t _index, string name = "?")
         {
-            lex_return iterator(size_t index = skip_separator(txt, _index), size_t I = 0, Rule value = Rule())()
+            template it(size_t index = skip_separator(txt, _index), size_t I = 0, Rule value = Rule())
             {
                 static if (I >= args.length)
-                    return lex_succes(_index, index, value);
+                    enum it = lex_succes(_index, index, value);
                 else
                 {
                     enum result = args[I].lex!(txt, index);
                     static if (!result.state)
                     {
                         static if (name.length == 0)
-                            return lex_failure(result.begin, result.end, result.msg);
+                            enum it = lex_failure(result.begin, result.end, result.msg);
                         else static if (result.end >= txt.length)
-                            return lex_failure(result.begin, result.end, "EOF while parsing '" ~ name ~
+                            enum it = lex_failure(result.begin, result.end, "EOF while parsing '" ~ name ~
                                                "':\n Expected '" ~ args[I].stringof ~ "'!");
                         else
-                            return lex_failure(result.begin, result.end,
-                                               "Error while parsing '" ~ name ~ "':\n" ~ result.msg);
+                            enum it = lex_failure(result.begin, result.end,
+                                                  "Error while parsing '" ~ name ~ "':\n" ~ result.msg);
                     }
                     else
                     {
@@ -56,9 +56,9 @@ template Rule(InArgs...)
                                 __traits(getMember, v, args[I].name).forceAssign(result.data);
                             return v;
                         }();
-                        enum next = iterator!(skip_separator(txt, result.end), I+1, v1);
+                        enum next = it!(skip_separator(txt, result.end), I+1, v1);
                         static if (!next.state)
-                            return lex_failure(next.begin, next.end, next.msg);
+                            enum it = lex_failure(next.begin, next.end, next.msg);
                         else
                         {
                             enum end = min(txt.length, next.end);
@@ -68,12 +68,12 @@ template Rule(InArgs...)
                                     v.repr = txt[index..end];
                                 return v;
                             }();
-                            return lex_succes(index, end, v2);
+                            enum it = lex_succes(index, end, v2);
                         }
                     }
                 }
             }
-            return iterator();
+            enum lex = it!();
         }
     }
 }

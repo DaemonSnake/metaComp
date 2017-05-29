@@ -29,8 +29,7 @@ struct RuleRepeat(Type, size_t Min = 0, Separator...)
 
     mixin lex_correct!();
 
-    static string build_grammar_repr()
-    {
+    enum grammar_repr = {
         static if (is_rule!(Type))
             string repr = Type.grammar_repr;
         else
@@ -43,11 +42,9 @@ struct RuleRepeat(Type, size_t Min = 0, Separator...)
         else
             repr ~= "+" ~ Min.to!string;
         static if (Separator.length == 1)
-            repr ~= "(" ~ separator.grammar_repr ~ ")";
+            repr ~= "(" ~ correctArg!(Separator[0]).grammar_repr ~ ")";
         return repr;
-    }
-
-    enum grammar_repr = build_grammar_repr();
+    }();
 
     static if (Separator.length == 1)
     {
@@ -63,54 +60,50 @@ struct RuleRepeat(Type, size_t Min = 0, Separator...)
     size_t length;
     string repr;
 
-    static lex_return lex(string txt, size_t index, string name = "?")()
+    template lex(string txt, size_t index, string name = "?")
     {
         alias ret_type = Tuple!(typeof(this), size_t, string);
-        ret_type iterator(size_t _i, bool started = false, Values...)()
+        template it(size_t _i, bool started = false, Values...)
         {
-            ret_type end_return(size_t end, string msg)
-            {
-                static if (is_rule_value!Type)
-                    return tuple(RuleRepeat(Values.length, txt[index..end]), end, msg);
-                else
-                    return tuple(RuleRepeat([Values], Values.length, txt[index..end]), end, msg);
-            }
+            static if (is_rule_value!Type)
+                enum end_return(size_t end, string msg) = tuple(RuleRepeat(Values.length, txt[index..end]), end, msg);
+            else
+                enum end_return(size_t end, string msg) = tuple(RuleRepeat([Values], Values.length, txt[index..end]), end, msg);
             
-            ret_type main_it(size_t i)()
+            template main_it(size_t i)
             {
                 enum lex_res = Type.lex!(txt, i, name);
 
                 static if (!lex_res.state)
-                    return end_return(min(i, txt.length), lex_res.msg);
+                    enum main_it = end_return!(min(i, txt.length), ((lex_res.msg)));
                 else static if (is_rule_value!Type)
-                    return iterator!(skip_separator(txt, lex_res.end), true);
+                    enum main_it = it!(skip_separator(txt, lex_res.end), true);
                 else
-                    return iterator!(skip_separator(txt, lex_res.end), true, Values,
-                                     cast(Type)lex_res.data);
+                    enum main_it = it!(skip_separator(txt, lex_res.end), true, Values, ((lex_res.data)));
             }
 
             static if (Separator.length == 1 && started)
             {
                 enum res = separator.lex!(txt, _i);
                 static if (!res.state)
-                    return end_return(min(_i, txt.length), res.msg);
+                    enum it = end_return!(min(_i, txt.length), ((res.msg)));
                 else
-                    return main_it!(skip_separator(txt, res.end));
+                    enum it =  main_it!(skip_separator(txt, res.end));
             }
             else
-                return main_it!(_i);
-        }
+                enum it = main_it!(_i);
+        };
 
-        enum result = iterator!(skip_separator(txt, index));
+        enum result = it!(skip_separator(txt, index));
 
         static if (result[0].length < Min) {
-            return lex_failure(index, result[1],
+            enum lex = lex_failure(index, result[1],
                          "Issuficient number of " ~ Type.grammar_repr ~
                          "!\n\tExpected at least " ~ Min.to!string ~
                          " repetitions and instead received " ~
                                result[0].length.to!string ~ '\n' ~ result[2].replace("\n", "\n\t\t"));
         }
         else
-            return lex_succes(index, result[1], result[0]);
+            enum lex = lex_succes(index, result[1], result[0]);
     }
 }

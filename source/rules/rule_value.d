@@ -15,26 +15,28 @@ struct RuleValue(string repr)
     mixin lex_correct!();
     enum grammar_repr = "\"" ~ repr ~ '"';
     
-    static auto lex(string txt, size_t index, string name = "?")()
+    template lex(string txt, size_t index, string name = "?")
     {
         enum min_l = min(txt.length, index+repr.length);
         
         static if (index >= txt.length)
-            return lex_failure(txt.length, txt.length, "EOF");
+            enum lex = lex_failure(txt.length, txt.length, "EOF");
         else static if ((index + repr.length > txt.length) ||
                    (txt[index..index+repr.length] != repr))
-            return lex_failure(index, min_l,
+            enum lex = lex_failure(index, min_l,
                          "Expected '" ~ repr ~ "', instead got: '" ~ txt[index..min_l] ~ "'");
         else static if (index + repr.length != txt.length && isId(txt[index+repr.length]))
         {
-            size_t end = index+repr.length;
-            while (end < txt.length && isId(txt[end]))
-                end++;
-            return lex_failure(index, end, "Expected '" ~ repr ~ "', instead got: '" ~
-                         txt[index..end] ~ "'");
+            enum end = {
+                size_t end = index+repr.length;
+                while (end < txt.length && isId(txt[end]))
+                    end++;
+            }();
+            enum lex = lex_failure(index, end, "Expected '" ~ repr ~ "', instead got: '" ~
+                                   txt[index..end] ~ "'");
         }
         else
-            return lex_succes(index, index + repr.length, repr);
+            enum lex = lex_succes(index, index + repr.length, repr);
     }
 }
 
@@ -43,15 +45,15 @@ struct RuleValue(char Value)
     mixin lex_correct!();
     enum grammar_repr = "'" ~ Value ~ "'";
     
-    static auto lex(string txt, size_t index, string name = "?")()
+    template lex(string txt, size_t index, string name = "?")
     {
         static if (index >= txt.length)
-            return lex_failure(index, index, "EOF while expecting : " ~ Value);
+            enum lex = lex_failure(index, index, "EOF while expecting : " ~ Value);
         else static if (txt[index] != Value)
-            return lex_failure(index, index+1, "Excepted '" ~ Value ~ "' (" ~
+            enum lex = lex_failure(index, index+1, "Excepted '" ~ Value ~ "' (" ~
                                index.to!string ~"), instead got: '" ~ txt[index] ~ "'");
         else
-            return lex_succes(index, index+1, Value);
+            enum lex = lex_succes(index, index+1, Value);
     }
 }
 

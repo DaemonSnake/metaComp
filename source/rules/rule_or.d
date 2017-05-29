@@ -47,37 +47,38 @@ template RuleOr(Rules...)
         Tuple!(staticMap!(union_member, aliasSeqOf!(iota(0, rules.length)))) _members;
         alias _members this;
     
-        static lex_return lex(string txt, size_t index, string name = "?")()
+        template lex(string txt, size_t index, string name = "?")
         {
-            lex_return iterator(size_t I = 0, size_t MaxI = 0, size_t Max = 0, string Error = "")()
+            template it(size_t I = 0, size_t MaxI = 0, size_t Max = 0, string Error = "")
             {
                 static if (I >= rules.length)
-                    return lex_failure(index, index, "Or rule (" ~ name ~
-                                       ") failed! All alternatives failed!\n" ~
-                                       "The best match was '" ~ rules[MaxI].stringof ~ "' with error:\n" ~
-                                       Error);
+                    enum it = lex_failure(index, index, "Or rule (" ~ name ~
+                                          ") failed! All alternatives failed!\n" ~
+                                          "The best match was '" ~ rules[MaxI].stringof ~ "' with error:\n" ~
+                                          Error);
                 else
                 {
                     enum result = rules[I].lex!(txt, index, name);
                     static if (!result.state)
                     {
                         static if (result.end > Max)
-                            return iterator!(I+1, I, (result.end), (result.msg));
+                            enum it = it!(I+1, I, (result.end), (result.msg));
                         else
-                            return iterator!(I+1, MaxI, Max, Error);
+                            enum it = it!(I+1, MaxI, Max, Error);
                     }
                     else
-                    {
-                        RuleOr tmp;
-                        tmp.repr = txt[index..min(result.end, txt.length)];
-                        tmp.index = I;
-                        static if (!is_rule_value!(rules[I]))
-                            __traits(getMember, tmp, "member_" ~ to!string(I)).forceAssign(result.data);
-                        return lex_succes(index, result.end, tmp);
-                    }
+                        enum it = {
+                            RuleOr tmp;
+                            tmp.repr = txt[index..min(result.end, txt.length)];
+                            tmp.index = I;
+                            static if (!is_rule_value!(rules[I]))
+                                __traits(getMember, tmp, "member_" ~ to!string(I)).forceAssign(result.data);
+                            return lex_succes(index, result.end, tmp);
+                        }();
                 }
             }
-            return iterator();
+
+            enum lex = it!();
         }
     }
 }

@@ -22,14 +22,14 @@ mixin template build_lexer()
     
     type _member;
     alias _member this;
-    
-    static lex_return!(typeof(this)) lex(string txt, size_t index, string name = "?")()
+
+    template lex(string txt, size_t index, string name = "?")
     {
         enum result = type.lex!(txt, index, name);
         static if (result.state)
-            return lex_succes(result.begin, result.end, cast(typeof(this))result.data);
+            enum lex = lex_succes(result.begin, result.end, cast(typeof(this))result.data);
         else
-            return lex_failure!(typeof(this))(result.begin, result.end, result.msg);
+            enum lex = lex_failure!(typeof(this))(result.begin, result.end, result.msg);
     }
 
     enum grammar_repr = typeof(this).stringof;
