@@ -64,11 +64,3 @@ mixin template is_template(alias Template, string name)
     mixin("enum is_" ~ name ~ "(alias T) = false;");
     mixin("enum is_" ~ name ~ "(T) = isInstanceOf!(Template, T);");
 }
-
-template is_hidden_template(T, string name)
-{
-    private import std.string : startsWith;
-    enum is_hidden_template = T.stringof.startsWith(name ~ '!');
-}
-
-enum is_hidden_template(alias V, string name) = false;

@@ -18,66 +18,62 @@ private mixin template build_name(size_t I)
     }
 }
 
-enum is_rule(T) = is_hidden_template!(T, "_Rule");
-enum is_rule(alias T) = false;
+mixin is_template!(_Rule, "rule");
 
-template Rule(InArgs...)
+alias Rule(InArgs...) = _Rule!(correctArgs!InArgs);
+
+struct _Rule(args...)
 {
-    alias Rule = _Rule!(correctArgs!InArgs);
+    mixin lex_correct!();
+    enum grammar_repr = "[" ~ [staticMap!(get_grammar_repr, args)].joiner(" ").to!string ~ "]";
+    mixin build_name!(0);
+    string repr;
 
-    struct _Rule(args...)
+    template lex(string txt, size_t _index, string name = "?")
     {
-        mixin lex_correct!();
-        enum grammar_repr = "[" ~ [staticMap!(get_grammar_repr, args)].joiner(" ").to!string ~ "]";
-        mixin build_name!(0);
-        string repr;
-
-        template lex(string txt, size_t _index, string name = "?")
+        template it(size_t index = skip_separator(txt, _index), size_t I = 0, _Rule value = _Rule())
         {
-            template it(size_t index = skip_separator(txt, _index), size_t I = 0, Rule value = Rule())
+            static if (I >= args.length)
+                enum it = lex_succes(_index, index, value);
+            else
             {
-                static if (I >= args.length)
-                    enum it = lex_succes(_index, index, value);
+                enum result = args[I].lex!(txt, index);
+                static if (!result.state)
+                {
+                    static if (name.length == 0)
+                        enum it = lex_failure(result.begin, result.end, result.msg);
+                    else static if (result.end >= txt.length)
+                        enum it = lex_failure(result.begin, result.end, "EOF while parsing '" ~ name ~
+                                              "':\n Expected '" ~ args[I].stringof ~ "'!");
+                    else
+                        enum it = lex_failure(result.begin, result.end,
+                                              "Error while parsing '" ~ name ~ "':\n" ~ result.msg);
+                }
                 else
                 {
-                    enum result = args[I].lex!(txt, index);
-                    static if (!result.state)
-                    {
-                        static if (name.length == 0)
-                            enum it = lex_failure(result.begin, result.end, result.msg);
-                        else static if (result.end >= txt.length)
-                            enum it = lex_failure(result.begin, result.end, "EOF while parsing '" ~ name ~
-                                               "':\n Expected '" ~ args[I].stringof ~ "'!");
-                        else
-                            enum it = lex_failure(result.begin, result.end,
-                                                  "Error while parsing '" ~ name ~ "':\n" ~ result.msg);
-                    }
+                    enum v1 = {
+                        auto v = value;
+                        static if (is_named!(args[I]))
+                            __traits(getMember, v, args[I].name) = result.data;
+                        return v;
+                    }();
+                    enum next = it!(skip_separator(txt, result.end), I+1, v1);
+                    static if (!next.state)
+                        enum it = lex_failure(next.begin, next.end, next.msg);
                     else
                     {
-                        enum v1 = {
-                            auto v = value;
-                            static if (is_named!(args[I]))
-                                __traits(getMember, v, args[I].name) = result.data;
+                        enum end = min(txt.length, next.end);
+                        enum v2 = {
+                            auto v = next.data;
+                            static if (I == 0)
+                                v.repr = txt[index..end];
                             return v;
                         }();
-                        enum next = it!(skip_separator(txt, result.end), I+1, v1);
-                        static if (!next.state)
-                            enum it = lex_failure(next.begin, next.end, next.msg);
-                        else
-                        {
-                            enum end = min(txt.length, next.end);
-                            enum v2 = {
-                                auto v = next.data;
-                                static if (I == 0)
-                                    v.repr = txt[index..end];
-                                return v;
-                            }();
-                            enum it = lex_succes(index, end, v2);
-                        }
+                        enum it = lex_succes(index, end, v2);
                     }
                 }
             }
-            enum lex = it!();
         }
+        enum lex = it!();
     }
 }
