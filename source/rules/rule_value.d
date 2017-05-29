@@ -7,13 +7,13 @@ import std.conv : to;
 
 import tools;
 
-alias isId = (c) => isAlphaNum(c) || c == '_';
 mixin is_template!(RuleValue, "rule_value");
 
 struct RuleValue(string repr)
 {
     mixin lex_correct!();
     enum grammar_repr = "\"" ~ repr ~ '"';
+    private alias isId = (c) => isAlphaNum(c) || c == '_';
     
     template lex(string txt, size_t index, string name = "?")
     {

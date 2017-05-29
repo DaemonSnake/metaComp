@@ -1,9 +1,12 @@
 module rules.rule_opt;
 
 import rules.rule_named : is_named;
-import rules.rule_value : correctArg, RuleValue, is_rule_value;
+import rules.rule_value : correctArg, is_rule_value;
 import rules.rule : is_rule;
 import tools;
+
+alias RuleOpt(alias Rule) = RuleOpt!(correctArg!(Rule));
+mixin is_template!(RuleOpt, "rule_opt");
 
 struct RuleOpt(Rule)
 {
@@ -46,7 +49,3 @@ struct RuleOpt(Rule)
         }();
     }
 }
-
-alias RuleOpt(alias Rule) = RuleOpt!(correctArg!(Rule));
-
-mixin is_template!(RuleOpt, "rule_opt");

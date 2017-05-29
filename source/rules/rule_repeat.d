@@ -1,6 +1,6 @@
 module rules.rule_repeat;
 
-import rules.rule_value : RuleValue, is_rule_value, correctArg;
+import rules.rule_value : is_rule_value, correctArg;
 import rules.rule_named : is_named;
 import rules.rule_opt : is_rule_opt;
 import rules.rule : is_rule;
@@ -15,7 +15,7 @@ alias RuleStar(T, Separator...) = RuleRepeat!(T, 0, Separator);
 alias RuleStar(alias T, Separator...) = RuleRepeat!(T, 0, Separator);
 alias RulePlus(alias T, Separator...) = RuleRepeat!(T, 1, Separator);
 alias RulePlus(T, Separator...) = RuleRepeat!(T, 1, Separator);
-alias RuleRepeat(alias T, Separator...) = RuleRepeat!(RuleValue!T, Min, Separator);
+alias RuleRepeat(alias T, Separator...) = RuleRepeat!(correctArg!T, Min, Separator);
 
 private struct ret_type(T) { T data; size_t end;  string error; }
 
