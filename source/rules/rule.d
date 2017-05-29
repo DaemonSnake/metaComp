@@ -4,13 +4,19 @@ import rules.rule_named : is_named;
 import rules.rule_value : correctArgs;
 import tools;
 
-import std.typecons : Tuple;
 import std.conv : to;
-import std.meta : staticMap, Filter, AliasSeq;
+import std.meta : staticMap;
 import std.algorithm : min, joiner;
-import std.traits : isType;
 
-private alias named_members(T) = AliasSeq!(T.type, T.name);
+private mixin template build_name(size_t I)
+{
+    static if (I < args.length)
+    {
+        static if (is_named!(args[I]))
+            mixin("args[" ~ I.to!string ~ "].type " ~ args[I].name ~ ';');
+        mixin build_name!(I+1);
+    }
+}
 
 enum is_rule(T) = is_hidden_template!(T, "_Rule");
 enum is_rule(alias T) = false;
@@ -22,11 +28,9 @@ template Rule(InArgs...)
     struct _Rule(args...)
     {
         mixin lex_correct!();
-        alias _members this;
         enum grammar_repr = "[" ~ [staticMap!(get_grammar_repr, args)].joiner(" ").to!string ~ "]";
-
+        mixin build_name!(0);
         string repr;
-        Tuple!(staticMap!(named_members, Filter!(is_named, args))) _members;
 
         template lex(string txt, size_t _index, string name = "?")
         {

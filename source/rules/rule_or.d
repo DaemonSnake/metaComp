@@ -7,9 +7,7 @@ import rules.rule_opt : is_rule_opt, RuleOpt;
 import rules.rule_builtins;
 import tools;
 
-import std.typecons : Tuple;
-import std.meta : anySatisfy, aliasSeqOf, staticMap, AliasSeq;
-import std.range : iota;
+import std.meta : anySatisfy, staticMap;
 import std.algorithm : joiner, min;
 import std.conv : to;
 
@@ -34,18 +32,9 @@ template RuleOr(Rules...)
         mixin lex_correct!();
         enum grammar_repr = "[" ~ [staticMap!(get_grammar_repr, rules)].joiner(" | ").to!string ~ "]";
 
-        template union_member(size_t I)
-        {
-            static if (is_rule_value!(rules[I]))
-                alias union_member = AliasSeq!();
-            else
-                alias union_member = AliasSeq!(rules[I], "member_" ~ to!string(I));
-        }
-
         string repr;
         size_t index;
-        Tuple!(staticMap!(union_member, aliasSeqOf!(iota(0, rules.length)))) _members;
-        alias _members this;
+        mixin build_name!(0);
     
         template lex(string txt, size_t index, string name = "?")
         {
@@ -80,5 +69,15 @@ template RuleOr(Rules...)
 
             enum lex = it!();
         }
+    }
+}
+
+private mixin template build_name(int I)
+{
+    static if (I < rules.length)
+    {
+        static if (!is_rule_value!(rules[I]))
+            mixin ("rules[" ~ I.stringof ~ "] member_" ~ I.stringof ~ ";");
+        mixin build_name!(I+1);
     }
 }

@@ -7,12 +7,8 @@ import rules.rule : is_rule;
 
 import tools;
 
-import std.typecons : tuple, Tuple;
 import std.algorithm : joiner, min;
-import std.range : iota;
 import std.conv : to;
-import std.meta : staticMap, aliasSeqOf;
-import std.traits : Select;
 import std.string : replace;
 
 alias RuleStar(T, Separator...) = RuleRepeat!(T, 0, Separator);
@@ -20,6 +16,8 @@ alias RuleStar(alias T, Separator...) = RuleRepeat!(T, 0, Separator);
 alias RulePlus(alias T, Separator...) = RuleRepeat!(T, 1, Separator);
 alias RulePlus(T, Separator...) = RuleRepeat!(T, 1, Separator);
 alias RuleRepeat(alias T, Separator...) = RuleRepeat!(RuleValue!T, Min, Separator);
+
+private struct ret_type(T) { T data; size_t end;  string error; }
 
 struct RuleRepeat(Type, size_t Min = 0, Separator...)
 {
@@ -61,14 +59,13 @@ struct RuleRepeat(Type, size_t Min = 0, Separator...)
     string repr;
 
     template lex(string txt, size_t index, string name = "?")
-    {
-        alias ret_type = Tuple!(typeof(this), size_t, string);
+    {        
         template it(size_t _i, bool started = false, Values...)
         {
             static if (is_rule_value!Type)
-                enum end_return(size_t end, string msg) = tuple(RuleRepeat(Values.length, txt[index..end]), end, msg);
+                enum end_return(size_t end, string msg) = ret_type!(typeof(this))(RuleRepeat(Values.length, txt[index..end]), end, msg);
             else
-                enum end_return(size_t end, string msg) = tuple(RuleRepeat([Values], Values.length, txt[index..end]), end, msg);
+                enum end_return(size_t end, string msg) = ret_type!(typeof(this))(RuleRepeat([Values], Values.length, txt[index..end]), end, msg);
             
             template main_it(size_t i)
             {
@@ -96,14 +93,14 @@ struct RuleRepeat(Type, size_t Min = 0, Separator...)
 
         enum result = it!(skip_separator(txt, index));
 
-        static if (result[0].length < Min) {
-            enum lex = lex_failure(index, result[1],
+        static if (result.data.length < Min) {
+            enum lex = lex_failure(index, result.end,
                          "Issuficient number of " ~ Type.grammar_repr ~
                          "!\n\tExpected at least " ~ Min.to!string ~
                          " repetitions and instead received " ~
-                               result[0].length.to!string ~ '\n' ~ result[2].replace("\n", "\n\t\t"));
+                               result.data.length.to!string ~ '\n' ~ result.error.replace("\n", "\n\t\t"));
         }
         else
-            enum lex = lex_succes(index, result[1], result[0]);
+            enum lex = lex_succes(index, result.end, result.data);
     }
 }
