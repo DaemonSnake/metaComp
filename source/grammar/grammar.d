@@ -17,7 +17,6 @@ struct rule_body
                        named!("content", RulePlus!rule_element),
                        ']',
                        named!("postfix", RuleOpt!(RuleOr!(plus, '?', star))));
-
 }
 
 struct rule_element

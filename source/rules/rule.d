@@ -10,10 +10,10 @@ import std.algorithm : min, joiner;
 
 private mixin template build_name(size_t I)
 {
-    static if (I < args.length)
+    static if (I < __args.length)
     {
-        static if (is_named!(args[I]))
-            mixin("args[" ~ I.to!string ~ "].type " ~ args[I].name ~ ';');
+        static if (is_named!(__args[I]))
+            mixin("__args[" ~ I.to!string ~ "].type " ~ __args[I].name ~ ';');
         mixin build_name!(I+1);
     }
 }
@@ -22,10 +22,10 @@ mixin is_template!(_Rule, "rule");
 
 alias Rule(InArgs...) = _Rule!(correctArgs!InArgs);
 
-struct _Rule(args...)
+struct _Rule(__args...)
 {
     mixin lex_correct!();
-    enum grammar_repr = "[" ~ [staticMap!(get_grammar_repr, args)].joiner(" ").to!string ~ "]";
+    enum grammar_repr = "[" ~ [staticMap!(get_grammar_repr, __args)].joiner(" ").to!string ~ "]";
     mixin build_name!(0);
     string repr;
 
@@ -33,18 +33,18 @@ struct _Rule(args...)
     {
         template it(size_t index = skip_separator(txt, _index), size_t I = 0, _Rule value = _Rule())
         {
-            static if (I >= args.length)
+            static if (I >= __args.length)
                 enum it = lex_succes(_index, index, value);
             else
             {
-                enum result = args[I].lex!(txt, index);
+                enum result = __args[I].lex!(txt, index);
                 static if (!result.state)
                 {
                     static if (name.length == 0)
                         enum it = lex_failure(result.begin, result.end, result.msg);
                     else static if (result.end >= txt.length)
                         enum it = lex_failure(result.begin, result.end, "EOF while parsing '" ~ name ~
-                                              "':\n Expected '" ~ args[I].stringof ~ "'!");
+                                              "':\n Expected '" ~ __args[I].stringof ~ "'!");
                     else
                         enum it = lex_failure(result.begin, result.end,
                                               "Error while parsing '" ~ name ~ "':\n" ~ result.msg);
@@ -53,8 +53,8 @@ struct _Rule(args...)
                 {
                     enum v1 = {
                         auto v = value;
-                        static if (is_named!(args[I]))
-                            __traits(getMember, v, args[I].name) = result.data;
+                        static if (is_named!(__args[I]))
+                            __traits(getMember, v, __args[I].name) = result.data;
                         return v;
                     }();
                     enum next = it!(skip_separator(txt, result.end), I+1, v1);

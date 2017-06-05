@@ -1,0 +1,4 @@
+root = [var | assign | action]*(';')
+var = ["var" id:name]
+assign = [id:name '=' int:value]
+action = [id:what [id | int]*(','):args ]
