@@ -1,0 +1,4 @@
+{
+    "name": "test",
+    "dflags-dmd": ["-J."]
+}

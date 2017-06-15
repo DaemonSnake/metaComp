@@ -1,5 +1,7 @@
 module grammar.parser;
-public import grammar.grammar;
+
+import grammar.grammar;
+import rules.rule_or : or_value;
 
 string parser(root Node)()
 {

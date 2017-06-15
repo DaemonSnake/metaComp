@@ -1,5 +1,11 @@
 module grammar.grammar;
-public import metaComp;
+import rules.rule_repeat : RulePlus;
+import rules.rule_named : named;
+import rules.rule_builtins;
+import rules.rule : Rule;
+import rules.rule_opt : RuleOpt;
+import rules.rule_or : RuleOr;
+import tools : build_lexer;
 
 struct root
 {
