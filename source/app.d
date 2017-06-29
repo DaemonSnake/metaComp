@@ -1,6 +1,6 @@
 import metaComp;
 import grammar.grammar;
-import test1;
+import exampleParser;
 
 template stringToCompiledString(string code, With, alias Parser)
 {
@@ -22,7 +22,6 @@ mixin template CompileFile(string file, With, Parser)
 void main()
 {
     mixin CompileFile!("test.ex", Ex.root, Ex);
-    // pragma(msg, "root = " ~ root.type.grammar_repr);
     // pragma(msg, GrammarTxtToD!("root = " ~ root.type.grammar_repr));
     // pragma(msg, GrammarTxtToD!("rule_body = " ~ rule_body.type.grammar_repr));
     // pragma(msg, GrammarTxtToD!("rule_element = " ~ rule_element.type.grammar_repr));
