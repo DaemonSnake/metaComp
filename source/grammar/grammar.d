@@ -40,6 +40,6 @@ struct rule_element
                   '|');
 }
 
-// root = [id:name '=' rule_body:rule]*
+// root = [id:name '=' rule_body:rule]+
 // rule_body = ['[' [rule_element]+:content ']' ['+' | '?' | '*']?:postfix]
 // rule_element = [ [[id | char_lit | string_lit | number | rule_body]:type [':' id:name]?:name ]+('|') ]

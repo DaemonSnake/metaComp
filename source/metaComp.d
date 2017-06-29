@@ -22,7 +22,7 @@ mixin template BuildGrammarFromTxt(string txt)
     alias BuildGrammarFromTxt = root;
 }
 
-mixin template BuildGrammar(string file)
+mixin template fileToGrammar(string file)
 {
     mixin BuildGrammarFromTxt!(import(file));
 }
