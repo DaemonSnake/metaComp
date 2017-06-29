@@ -7,7 +7,7 @@ template GrammarTxtToD(string txt)
     enum GrammarTxtToD = parser!((result.data));
 }
 
-mixin template BuildGrammarFromTxt(string txt)
+mixin template fileToGrammar(string file)
 {
     import rules.rule_named;
     import rules.rule_opt;
@@ -18,11 +18,4 @@ mixin template BuildGrammarFromTxt(string txt)
     import rules.rule;
     import tools : build_lexer;
     mixin(GrammarTxtToD!(import(file)));
-
-    alias BuildGrammarFromTxt = root;
-}
-
-mixin template fileToGrammar(string file)
-{
-    mixin BuildGrammarFromTxt!(import(file));
 }

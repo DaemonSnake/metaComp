@@ -1,4 +1,4 @@
 root = [var | assign | action]*(';')
-var = ["var" id:name]
+var = ["var" id:name ['=' int:value]?:initial ]
 assign = [id:name '=' int:value]
 action = [id:what [id | int]*(','):args ]
