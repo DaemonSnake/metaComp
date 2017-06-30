@@ -22,6 +22,8 @@ mixin is_template!(_Rule, "rule");
 
 alias Rule(InArgs...) = _Rule!(correctArgs!InArgs);
 
+alias _Rule(Arg) = Arg;
+
 struct _Rule(__args...)
 {
     mixin lex_correct!();
