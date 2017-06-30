@@ -21,7 +21,7 @@ mixin template CompileFile(string file, With, Parser)
 
 void main()
 {
-    // mixin CompileFile!("test.ex", Ex.root, Ex);
+    mixin CompileFile!("test.ex", Ex.root, Ex);
     // pragma(msg, GrammarTxtToD!("root = " ~ root.type.grammar_repr));
     // pragma(msg, GrammarTxtToD!("rule_body = " ~ rule_body.type.grammar_repr));
     // pragma(msg, GrammarTxtToD!("rule_element = " ~ rule_element.type.grammar_repr));

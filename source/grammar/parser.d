@@ -23,9 +23,23 @@ string parser(root Node)()
 string parser(rule_body Node)()
 {
     static if (Node.postfix.found)
-        enum holder = ["RulePlus", "RuleOpt", "RuleStar"][(Node.postfix.value.index)];
+        template holder(string txt)
+        {
+            static if (Node.postfix.found && Node.postfix.value.index != 1 &&
+                       or_value!((Node.postfix.value)).separator.found) //Not ? && (...) found
+                enum sep_arg = ", " ~
+                    parser!((or_value!((Node.postfix.value)).separator.value.separator));
+            else
+                enum sep_arg = "";
+            
+            enum type = ["RulePlus", "RuleOpt", "RuleStar"][(Node.postfix.value.index)];
+            static if (Node.content.length > 1)
+                enum holder = type ~ "!(Rule!(" ~ txt ~ ")" ~ sep_arg ~ ")";
+            else
+                enum holder = type ~ "!(" ~ txt ~ sep_arg ~ ")";
+        }
     else
-        enum holder = "Rule";
+        enum holder(string txt) = "Rule!(" ~ txt ~ ')';
     
     string iterator(size_t I = 0)()
     {
@@ -37,13 +51,7 @@ string parser(rule_body Node)()
     }
 
     enum content = iterator();
-    static if (Node.postfix.found && Node.postfix.value.index != 1 &&
-               or_value!((Node.postfix.value)).separator.found) //Not ? && (...) found
-        enum separator = ", " ~
-            parser!((or_value!((Node.postfix.value)).separator.value.separator));
-    else
-        enum separator = "";
-    return holder ~ "!(" ~ content ~ separator ~ ")";
+    return holder!(content);
 }
 
 string parser(rule_element Node)()
