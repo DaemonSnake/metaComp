@@ -23,6 +23,7 @@ module rules.rule_builtins;
 import std.ascii : isAlphaNum, isAlpha;
 import std.conv : to;
 import std.algorithm : min;
+import rules.rule_value : correctArgs, correctArg;
 import tools;
 
 struct RuleId
@@ -142,5 +143,90 @@ struct RuleInt
                 ret.value = to!long(ret.repr);
                 return lex_succes(index, i, ret);
             }();
+    }
+}
+
+//TODO implementation in grammar
+alias RuleUntil(alias value) = RuleUntil!(correctArg!value);
+
+struct RuleUntil(What)
+{
+    string repr;
+
+    mixin lex_correct!();
+    enum grammar_repr = " -> " ~ What.grammar_repr;
+
+    template lex(string txt, size_t index, string name = "?")
+    {
+        size_t it(size_t i)()
+        {
+            static if (i >= txt.length)
+                return i;
+            else
+            {
+                enum result = What.lex!(txt, i, name);
+                static if (result.state)
+                    return result.end;
+                else
+                    return it!(i+1);
+            }
+        }
+
+        enum lex = lex_succes(index, it!index, ret);
+    }
+}
+
+//TODO
+struct RuleBalanced(In, Out)
+{
+    string repr;
+    string value;
+
+    mixin lex_correct!();
+    enum grammar_repr = In.grammar_repr ~ " <> " ~ Out.grammar_repr;
+    
+    template lex(string txt, size_t index, string name = "?")
+    {        
+        static if (index >= txt.length)
+            enum lex = lex_failure(index, txt.length, "Index out of bounds");
+        else
+        {
+            enum in_res = In.lex!(txt, index, name);
+
+            lex_return iterator(size_t balence, size_t i)()
+            {
+                static if (balence > 0 && i >= txt.length)
+                    return lex_failure(index, i, "balenced expression never incomplete");
+                else
+                {
+                    enum res = Out.lex!(txt, i, name);
+                    static if (res.state)
+                    {
+                        static if (balence == 1)
+                        {
+                            RuleBalanced tmp;
+                            tmp.repr = txt[index..i];
+                            tmp.value = txt[in_res.end..i];
+                            return lex_succes(i, index, tmp);
+                        }
+                        else
+                            return iterator!(balence - 1, res.end);
+                    }
+                    else
+                    {
+                        enum new_in = In.lex!(txt, res.end, name);
+                        static if (res.state)
+                            return iterator!(balence + 1, new_in.end);
+                        else
+                            return iterator(balence, i + 1);
+                    }
+                }
+            }
+
+            static if (!in_res.state)
+                enum lex = lex_failure(index, in_res.end, "No entry of the balenced expression");
+            else
+                enum lex = iterator!(1, in_res.end);
+        }
     }
 }
